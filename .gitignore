@@ -1,0 +1,63 @@
+# Ignore Visual Studio cache & temp folders
+.vs/
+*.vscode/
+
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Tt]emp/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Backup & reports
+*.bak
+*.ncb
+*.opendb
+*.VC.db
+*.VC.opendb
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Entity Framework migrations history
+*.cache
+*.dbmdl
+*.jfm
+
+# SQL Server / LocalDB files
+*.mdf
+*.ldf
+
+# IIS / Web server files
+_IISExpress/
+.resharper/
+
+# Publish profiles
+*.pubxml
+*.publishproj
+
+# Packages (but keep the `packages.config`)
+packages/*
+!packages/*.config
+
+# Node/npm (if used for frontend assets)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+*.log
+
+# Coverage / test results
+*.coverage
+*.coveragexml
+TestResult*/

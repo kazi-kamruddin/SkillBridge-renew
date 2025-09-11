@@ -1,0 +1,2 @@
+identityConfig.cs -> ApplicationUserManager (signUp input form restrictions)
+
