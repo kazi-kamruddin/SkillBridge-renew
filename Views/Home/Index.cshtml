@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<SkillBridge.Models.SkillCategory>
+
+@{
     ViewBag.Title = "SkillBridge";
 }
 
@@ -30,4 +32,53 @@
             <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
         </section>
     </div>
+
+    <hr />
+
+    <h2>Filtered Skills (Name Length ≥ 4)</h2>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th style="width: 20%;">Skill Category</th>
+                <th style="width: 20%;">Skill</th>
+                <th style="width: 60%;">Skill Phases</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model)
+            {
+                int categoryRowSpan = category.Skills.Sum(s => s.SkillStages.Count);
+                bool firstCategoryRow = true;
+
+                foreach (var skill in category.Skills)
+                {
+                    int skillRowSpan = skill.SkillStages.Count;
+                    bool firstSkillRow = true;
+
+                    foreach (var stage in skill.SkillStages)
+                    {
+                        <tr>
+                            @* Skill Category Column *@
+                            @if (firstCategoryRow)
+                            {
+                                <td rowspan="@categoryRowSpan">@category.Name</td>
+                                firstCategoryRow = false;
+                            }
+
+                            @* Skill Column *@
+                            @if (firstSkillRow)
+                            {
+                                <td rowspan="@skillRowSpan">@skill.Name</td>
+                                firstSkillRow = false;
+                            }
+
+                            @* Skill Stage Column *@
+                            <td>@stage.Description</td>
+                        </tr>
+                    }
+                }
+            }
+        </tbody>
+    </table>
 </main>

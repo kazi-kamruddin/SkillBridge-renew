@@ -182,11 +182,16 @@
     <Compile Include="Migrations\202509111324410_AddSkillTables.Designer.cs">
       <DependentUpon>202509111324410_AddSkillTables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509111827435_AddUserInformationAndUserSkills.cs" />
+    <Compile Include="Migrations\202509111827435_AddUserInformationAndUserSkills.Designer.cs">
+      <DependentUpon>202509111827435_AddUserInformationAndUserSkills.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ProfileModels.cs" />
     <Compile Include="Models\SkillModels.cs" />
+    <Compile Include="Models\UserInfoModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -290,6 +295,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509111324410_AddSkillTables.resx">
       <DependentUpon>202509111324410_AddSkillTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509111827435_AddUserInformationAndUserSkills.resx">
+      <DependentUpon>202509111827435_AddUserInformationAndUserSkills.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

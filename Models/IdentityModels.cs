@@ -5,21 +5,18 @@ using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace SkillBridge.Models
-{
-    // Minimal user class for authentication
-    public class ApplicationUser : IdentityUser
+{    public class ApplicationUser : IdentityUser
     {
         // Generates the ClaimsIdentity for login cookies
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
-            // You can add custom claims here if needed
             return userIdentity;
         }
     }
 
 
-    // Minimal DbContext for Identity
+
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public ApplicationDbContext()
@@ -30,6 +27,8 @@ namespace SkillBridge.Models
         public DbSet<SkillCategory> SkillCategories { get; set; }
         public DbSet<Skill> Skills { get; set; }
         public DbSet<SkillStage> SkillStages { get; set; }
+        public DbSet<UserInformation> UserInformations { get; set; }
+        public DbSet<UserSkill> UserSkills { get; set; }
 
         public static ApplicationDbContext Create()
         {
