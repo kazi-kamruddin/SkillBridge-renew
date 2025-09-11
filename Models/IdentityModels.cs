@@ -18,6 +18,7 @@ namespace SkillBridge.Models
         }
     }
 
+
     // Minimal DbContext for Identity
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
@@ -25,6 +26,10 @@ namespace SkillBridge.Models
             : base("DefaultConnection", throwIfV1Schema: false)
         {
         }
+
+        public DbSet<SkillCategory> SkillCategories { get; set; }
+        public DbSet<Skill> Skills { get; set; }
+        public DbSet<SkillStage> SkillStages { get; set; }
 
         public static ApplicationDbContext Create()
         {

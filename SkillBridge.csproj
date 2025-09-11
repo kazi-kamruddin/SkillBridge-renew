@@ -178,10 +178,15 @@
     <Compile Include="Migrations\202509101925387_RemoveNameFromUser.Designer.cs">
       <DependentUpon>202509101925387_RemoveNameFromUser.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509111324410_AddSkillTables.cs" />
+    <Compile Include="Migrations\202509111324410_AddSkillTables.Designer.cs">
+      <DependentUpon>202509111324410_AddSkillTables.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ProfileModels.cs" />
+    <Compile Include="Models\SkillModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -282,6 +287,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\202509101925387_RemoveNameFromUser.resx">
       <DependentUpon>202509101925387_RemoveNameFromUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509111324410_AddSkillTables.resx">
+      <DependentUpon>202509111324410_AddSkillTables.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
