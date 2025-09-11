@@ -8,14 +8,14 @@ using System.Web.Mvc;
 namespace SkillBridge.Controllers
 {
     [Authorize]
-    public class ManageController : Controller
+    public class ProfileController : Controller
     {
         private ApplicationUserManager _userManager;
         private ApplicationSignInManager _signInManager;
 
-        public ManageController() { }
+        public ProfileController() { }
 
-        public ManageController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
+        public ProfileController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
@@ -33,7 +33,7 @@ namespace SkillBridge.Controllers
             private set => _signInManager = value;
         }
 
-        // GET: /Manage/Index
+        // GET: /Profile/Index
         public async Task<ActionResult> Index()
         {
             var userId = User.Identity.GetUserId();
@@ -44,13 +44,13 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
-        // GET: /Manage/ChangePassword
+        // GET: /Profile/ChangePassword
         public ActionResult ChangePassword()
         {
             return View();
         }
 
-        // POST: /Manage/ChangePassword
+        // POST: /Profile/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> ChangePassword(ChangePasswordViewModel model)
