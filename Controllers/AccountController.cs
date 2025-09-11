@@ -86,7 +86,7 @@ namespace SkillBridge.Controllers
             if (result.Succeeded)
             {
                 await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "CompleteProfile");
             }
 
             AddErrors(result);

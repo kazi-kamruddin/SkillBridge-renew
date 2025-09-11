@@ -7,7 +7,31 @@ select * from dbo.SkillStages;
 select * from dbo.UserSkills;
 select * from dbo.UserInformations;
 
+DELETE FROM dbo.UserSkills
+WHERE Status IN (
+    'Learning','Teaching');
+
+DELETE FROM dbo.UserInformations
+WHERE Age IN (
+    4,45,34,23);
+
 DELETE FROM dbo.AspNetUsers
-WHERE Email = 'kazi@gmail.com';
+WHERE Email IN (
+    'k@gmail.com',
+    'r@g.com',
+    't@t.com',
+    'ramsdale@gmail.com',
+    'e@e.com',
+    'l@l.com',
+    'o@o.com',
+    'd@d.com',
+    'a@g.com',
+    'x@x.xom',
+    'q@q.com',
+    'kazi@gmail.com',
+    'e@a.com',
+    'w@w.com'
+);
+
 
 
