@@ -15,10 +15,17 @@
         .ToList();
 
     var allDivisions = new List<string>
-    {
+{
         "Dhaka", "Chattogram", "Khulna", "Barishal", "Sylhet", "Mymensingh", "Rajshahi", "Rangpur"
     }.OrderBy(d => d).ToList();
 }
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/Styles/indexExplore.css" />
+}
+
+
 
 <div class="container mt-5 pt-4">
     <!-- Filters -->
