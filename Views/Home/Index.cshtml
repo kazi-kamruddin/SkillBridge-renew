@@ -59,21 +59,18 @@
                     foreach (var stage in skill.SkillStages)
                     {
                         <tr>
-                            @* Skill Category Column *@
                             @if (firstCategoryRow)
                             {
                                 <td rowspan="@categoryRowSpan">@category.Name</td>
                                 firstCategoryRow = false;
                             }
 
-                            @* Skill Column *@
                             @if (firstSkillRow)
                             {
                                 <td rowspan="@skillRowSpan">@skill.Name</td>
                                 firstSkillRow = false;
                             }
 
-                            @* Skill Stage Column *@
                             <td>@stage.Description</td>
                         </tr>
                     }

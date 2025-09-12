@@ -4,12 +4,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SkillBridge.Models
 {
-    // User Information table
     public class UserInformation
     {
         [Key]
         [ForeignKey("User")]
-        public string UserId { get; set; } // FK to AspNetUsers
+        public string UserId { get; set; } 
 
         [Required]
         [StringLength(150)]
@@ -33,7 +32,6 @@ namespace SkillBridge.Models
         public virtual ApplicationUser User { get; set; }
     }
 
-    // User Skills table
     public class UserSkill
     {
         [Key]
@@ -41,18 +39,18 @@ namespace SkillBridge.Models
 
         [Required]
         [ForeignKey("User")]
-        public string UserId { get; set; } // FK to AspNetUsers
+        public string UserId { get; set; } 
         public virtual ApplicationUser User { get; set; }
 
         [Required]
         [ForeignKey("Skill")]
-        public int SkillId { get; set; } // FK to Skills
+        public int SkillId { get; set; } 
         public virtual Skill Skill { get; set; }
 
         [Required]
         [StringLength(10)]
-        public string Status { get; set; } // "Teaching" or "Learning"
+        public string Status { get; set; } 
 
-        public int? KnownUpToStage { get; set; } // Nullable if Status = Learning
+        public int? KnownUpToStage { get; set; } 
     }
 }

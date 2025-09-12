@@ -111,11 +111,9 @@ namespace SkillBridge.Controllers
             var user = await UserManager.FindByNameAsync(model.Email);
             if (user == null || !(await UserManager.IsEmailConfirmedAsync(user.Id)))
             {
-                // Do not reveal user existence
                 return View("ForgotPasswordConfirmation");
             }
 
-            // Here you can implement email sending with reset token if needed
             return View("ForgotPasswordConfirmation");
         }
 

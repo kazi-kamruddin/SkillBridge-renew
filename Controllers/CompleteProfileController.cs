@@ -14,9 +14,8 @@ namespace SkillBridge.Controllers
         // GET: /CompleteProfile/
         public ActionResult Index()
         {
-            // Fetch all skill categories, skills, and stages (EF6 compatible)
             var skillData = db.SkillCategories
-                .Include("Skills.SkillStages") // EF6 string-based Include
+                .Include("Skills.SkillStages") 
                 .ToList();
 
             var model = new CompleteProfileViewModel
@@ -34,7 +33,6 @@ namespace SkillBridge.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Repopulate skill data if validation fails
                 model.AllSkillCategories = db.SkillCategories
                     .Include("Skills.SkillStages")
                     .ToList();
@@ -43,7 +41,6 @@ namespace SkillBridge.Controllers
 
             var userId = User.Identity.GetUserId();
 
-            // Save basic info
             var userInfo = new UserInformation
             {
                 UserId = userId,
@@ -55,7 +52,6 @@ namespace SkillBridge.Controllers
             };
             db.UserInformations.Add(userInfo);
 
-            // Save skills the user wants to learn
             if (model.SkillsToLearn != null && model.SkillsToLearn.Any())
             {
                 var validSkillIds = db.Skills.Select(s => s.Id).ToHashSet();
@@ -73,7 +69,6 @@ namespace SkillBridge.Controllers
                 }
             }
 
-            // Save skills the user knows
             if (model.SkillsIKnow != null && model.SkillsIKnow.Any())
             {
                 var validSkillIds = db.Skills.Select(s => s.Id).ToHashSet();
@@ -94,7 +89,6 @@ namespace SkillBridge.Controllers
 
             db.SaveChanges();
 
-            // Redirect to home after profile completion
             return RedirectToAction("Index", "Home");
         }
 

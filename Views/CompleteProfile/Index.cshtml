@@ -3,13 +3,12 @@
 @{
     ViewBag.Title = "Complete Your Profile";
 
-    // Prepare skill stages dictionary
     var allSkills = Model.AllSkillCategories
         .SelectMany(c => c.Skills)
         .ToList();
 
     var skillStagesDict = allSkills.ToDictionary(
-        s => s.Id.ToString(), // force string keys for JS
+        s => s.Id.ToString(), 
         s => s.SkillStages.Select(st => new { id = st.StageNumber, name = st.Description }).ToList()
     );
 
@@ -35,11 +34,36 @@
         </div>
         <div class="form-group">
             @Html.LabelFor(m => m.Profession)
-            @Html.TextBoxFor(m => m.Profession, new { @class = "form-control", placeholder = "Profession" })
+            @Html.DropDownListFor(m => m.Profession,
+                new SelectList(new[]
+                {
+                    "Student",
+                    "Teacher",
+                    "Software Developer",
+                    "Engineer",
+                    "Designer",
+                    "Freelancer",
+                    "Entrepreneur"
+                }, Model.Profession),
+                "Select Profession",
+                new { @class = "form-control" })
         </div>
         <div class="form-group">
             @Html.LabelFor(m => m.Location)
-            @Html.TextBoxFor(m => m.Location, new { @class = "form-control", placeholder = "Location" })
+            @Html.DropDownListFor(m => m.Location,
+                new SelectList(new[]
+                {
+                    "Barishal",
+                    "Chattogram",
+                    "Dhaka",
+                    "Khulna",
+                    "Rajshahi",
+                    "Rangpur",
+                    "Mymensingh",
+                    "Sylhet"
+                }, Model.Location),
+                "Select Location",
+                new { @class = "form-control" })
         </div>
         <div class="form-group">
             @Html.LabelFor(m => m.Bio)
@@ -67,7 +91,7 @@
 
         <hr />
         <h4>Skills You Know</h4>
-        <div id="skillsIKnowContainer">
+        <div id="skillsIKnowContainer" class="row">
             @foreach (var category in Model.AllSkillCategories)
             {
                 <div class="col-md-4 mb-3 skill-category-container" data-category="@category.Name">
@@ -88,16 +112,37 @@
 
         <div class="mt-4">
             <button type="submit" class="btn btn-success" id="proceedButton">Proceed</button>
+            <button type="button" class="btn btn-secondary" id="debugButton">Debug Print</button>
         </div>
+
+        <!-- debugging -->
+        <div id="debugOutput" class="mt-3 text-monospace"></div>
     }
 </main>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    <style>
+        .stage-option {
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+            .stage-option.badge-primary {
+                background-color: #007bff !important;
+                color: white !important;
+            }
+
+            .stage-option.badge-secondary {
+                background-color: #e9ecef !important;
+                color: #212529 !important;
+            }
+    </style>
+
     <script>
         $(document).ready(function () {
             var $form = $("#completeProfileForm");
-            var skillIKnowIndexMap = {}; // track index per skill
+            var skillIKnowIndexMap = {};
             var skillStagesData = @Html.Raw(skillStagesDataJson);
             var selectedSkillsToLearn = new Set();
             var selectedSkillsIKnow = {};
@@ -116,14 +161,12 @@
                     $form.find('input[name="SkillsToLearn"][value="' + skillId + '"]').remove();
                 }
 
-                // Hide/unhide skills I know
                 $(".skill-know").each(function () {
                     var id = $(this).data("skill-id");
                     if (selectedSkillsToLearn.has(id)) $(this).hide().removeClass("active");
                     else $(this).show();
                 });
 
-                // Remove stage container if hidden
                 selectedSkillsToLearn.forEach(function (id) {
                     $("#stage-selection-" + id).remove();
                     delete selectedSkillsIKnow[id];
@@ -137,7 +180,6 @@
                 var skillName = $this.data("skill-name");
 
                 if ($this.hasClass("active")) {
-                    // Deselect
                     $this.removeClass("active");
                     $("#stage-selection-" + skillId).remove();
                     delete selectedSkillsIKnow[skillId];
@@ -145,7 +187,7 @@
                 } else {
                     $this.addClass("active");
 
-                    // Create stage selection
+                    //stage selection
                     var stages = skillStagesData[skillId.toString()];
                     if (!stages) return;
 
@@ -157,11 +199,17 @@
 
                     $("#skillStagesSelectionContainer").append($stageContainer);
 
-                    // Add default hidden inputs (stage 0 if not clicked)
                     var index = Object.keys(skillIKnowIndexMap).length;
                     skillIKnowIndexMap[skillId] = index;
                     $('<input>').attr({ type: 'hidden', name: 'SkillsIKnow[' + index + '].SkillId', value: skillId, 'data-skill-id': skillId }).appendTo($form);
-                    $('<input>').attr({ type: 'hidden', name: 'SkillsIKnow[' + index + '].KnownUpToStage', value: 0, 'data-skill-id': skillId }).appendTo($form);
+                    $('<input>').attr({ type: 'hidden', name: 'SkillsIKnow[' + index + '].KnownUpToStage', value: 1, 'data-skill-id': skillId }).appendTo($form);
+
+                    $('#stage-selection-' + skillId + ' .stage-option').each(function () {
+                        if ($(this).data("stage") <= 1) {
+                            $(this).removeClass("badge-secondary").addClass("badge-primary");
+                        }
+                    });
+                    selectedSkillsIKnow[skillId] = 1;
                 }
             });
 
@@ -182,9 +230,32 @@
                     }
                 });
 
-                // Update hidden input
                 var idx = skillIKnowIndexMap[skillId];
                 $form.find('input[name="SkillsIKnow[' + idx + '].KnownUpToStage"]').val(stage);
+            });
+
+            // Debug Print button
+            $("#debugButton").click(function () {
+                var debugData = {};
+
+                $("#completeProfileForm").find("input, select, textarea").each(function () {
+                    var $el = $(this);
+                    var name = $el.attr("name");
+                    var value = $el.val();
+
+                    if (name) {
+                        if (debugData[name]) {
+                            if (!Array.isArray(debugData[name])) {
+                                debugData[name] = [debugData[name]];
+                            }
+                            debugData[name].push(value);
+                        } else {
+                            debugData[name] = value;
+                        }
+                    }
+                });
+
+                $("#debugOutput").html("<pre>" + JSON.stringify(debugData, null, 2) + "</pre>");
             });
         });
     </script>
