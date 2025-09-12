@@ -206,13 +206,11 @@ namespace SkillBridge.Controllers
         {
             if (id == null) return HttpNotFound();
 
-            // Fetch user basic info
             var user = db.Users.FirstOrDefault(u => u.Id == id);
             if (user == null) return HttpNotFound();
 
             var userInfo = db.UserInformations.FirstOrDefault(ui => ui.UserId == id);
 
-            // Fetch user skills
             var userSkills = db.UserSkills
                 .Include(us => us.Skill.SkillCategory)
                 .Where(us => us.UserId == id)
@@ -245,8 +243,6 @@ namespace SkillBridge.Controllers
 
             return View(model);
         }
-
-
 
 
 

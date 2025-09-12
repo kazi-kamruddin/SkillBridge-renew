@@ -5,21 +5,117 @@ using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
 
-public class ExploreController : Controller
+namespace SkillBridge.Controllers
 {
-    private ApplicationDbContext db = new ApplicationDbContext();
-
-    public ActionResult Index()
+    [Authorize]
+    public class ExploreController : Controller
     {
-        var currentUserId = User.Identity.GetUserId();
+        private ApplicationDbContext db = new ApplicationDbContext();
 
-        // TODO: Later: implement best match / partial match logic
-        var model = new ExploreViewModel
+        private readonly List<string> BangladeshDivisions = new List<string>
         {
-            BestMatches = new List<PublicProfileViewModel>(), // empty for now
-            PartialMatches = new List<PublicProfileViewModel>()
+            "Dhaka", "Chattogram", "Khulna", "Barishal", "Sylhet", "Mymensingh", "Rajshahi", "Rangpur"
         };
 
-        return View(model);
+        public ActionResult Index(string skillFilter = "", int stageFilter = 0, string locationFilter = "")
+        {
+            var currentUserId = User.Identity.GetUserId();
+
+            var currentUserSkills = db.UserSkills
+                .Where(us => us.UserId == currentUserId)
+                .ToList();
+
+            var teachingSkillsIds = currentUserSkills
+                .Where(us => us.Status == "Teaching")
+                .Select(us => us.SkillId)
+                .ToList();
+
+            var learningSkills = currentUserSkills
+                .Where(us => us.Status == "Learning")
+                .Select(us => new { us.SkillId, us.Skill.Name })
+                .ToList();
+
+
+            var otherUsers = db.Users
+                .Where(u => u.Id != currentUserId)
+                .ToList();
+
+            var bestMatches = new List<PublicProfileViewModel>();
+            var partialMatches = new List<PublicProfileViewModel>();
+
+            foreach (var user in otherUsers)
+            {
+                var userInfo = db.UserInformations.FirstOrDefault(ui => ui.UserId == user.Id);
+
+                var userSkills = db.UserSkills
+                    .Include(us => us.Skill.SkillCategory)
+                    .Where(us => us.UserId == user.Id)
+                    .ToList();
+
+                var userTeachingSkills = userSkills
+                    .Where(us => us.Status == "Teaching")
+                    .ToList();
+
+                var userLearningSkills = userSkills
+                    .Where(us => us.Status == "Learning")
+                    .ToList();
+
+                bool isBestMatch = userLearningSkills.Any(l => teachingSkillsIds.Contains(l.SkillId)) &&
+                                   userTeachingSkills.Any(t => learningSkills.Select(ls => ls.SkillId).Contains(t.SkillId));
+
+                bool isPartialMatch = !isBestMatch && userTeachingSkills.Any(t => learningSkills.Select(ls => ls.SkillId).Contains(t.SkillId));
+
+                var profileVm = new PublicProfileViewModel
+                {
+                    UserId = user.Id,
+                    FullName = userInfo?.FullName ?? "",
+                    Profession = userInfo?.Profession ?? "",
+                    Location = userInfo?.Location ?? "",
+                    Bio = userInfo?.Bio ?? "",
+                    SkillsToTeach = userTeachingSkills
+                        .Select(us => new SkillViewModel
+                        {
+                            SkillId = us.SkillId,
+                            SkillName = us.Skill.Name,
+                            Stage = us.KnownUpToStage ?? 1
+                        }).ToList(),
+                    SkillsToLearn = userLearningSkills
+                        .Select(us => new SkillViewModel
+                        {
+                            SkillId = us.SkillId,
+                            SkillName = us.Skill.Name,
+                            Stage = us.KnownUpToStage ?? 1
+                        }).ToList()
+                };
+
+
+
+                if (!string.IsNullOrEmpty(skillFilter) &&
+                    !profileVm.SkillsToTeach.Any(s => s.SkillName == skillFilter))
+                    continue;
+
+                if (stageFilter > 0 &&
+                    !profileVm.SkillsToTeach.Any(s => s.Stage >= stageFilter))
+                    continue;
+
+                if (!string.IsNullOrEmpty(locationFilter) &&
+                    profileVm.Location != locationFilter)
+                    continue;
+
+                if (isBestMatch) bestMatches.Add(profileVm);
+                else if (isPartialMatch) partialMatches.Add(profileVm);
+            }
+
+            bestMatches = bestMatches.OrderByDescending(b => b.SkillsToTeach.Count).ToList();
+            partialMatches = partialMatches.OrderByDescending(p => p.SkillsToTeach.Count).ToList();
+
+            var model = new ExploreViewModel
+            {
+                BestMatches = bestMatches,
+                PartialMatches = partialMatches
+            };
+
+            return View(model);
+        }
     }
 }

@@ -4,7 +4,8 @@ namespace SkillBridge.Models
 {
     public class ExploreViewModel
     {
-        public List<PublicProfileViewModel> BestMatches { get; set; }
-        public List<PublicProfileViewModel> PartialMatches { get; set; }
+        public List<PublicProfileViewModel> BestMatches { get; set; } = new List<PublicProfileViewModel>();
+        public List<PublicProfileViewModel> PartialMatches { get; set; } = new List<PublicProfileViewModel>();
     }
+
 }

@@ -1,37 +1,173 @@
 @model SkillBridge.Models.ExploreViewModel
+@using SkillBridge.Models
+@using Microsoft.AspNet.Identity
 
-<h2>Best Matches</h2>
-@if (!Model.BestMatches.Any())
-{
-    <p>No best matches yet.</p>
-}
-else
-{
-    foreach (var user in Model.BestMatches)
+@{
+    ViewBag.Title = "Explore";
+
+    var db = new ApplicationDbContext();
+    var currentUserId = User.Identity.GetUserId();
+
+    var userLearningSkills = db.UserSkills
+        .Where(us => us.UserId == currentUserId && us.Status == "Learning")
+        .Select(us => us.Skill.Name)
+        .Distinct()
+        .ToList();
+
+    var allDivisions = new List<string>
     {
-        <div>
-            <a href="@Url.Action("PublicProfile", "Profile", new { id = user.UserId })">
-                @user.FullName
-            </a>
-            | @user.Profession | @user.Location
-        </div>
-    }
+        "Dhaka", "Chattogram", "Khulna", "Barishal", "Sylhet", "Mymensingh", "Rajshahi", "Rangpur"
+    }.OrderBy(d => d).ToList();
 }
 
-<h2>Partial Matches</h2>
-@if (!Model.PartialMatches.Any())
-{
-    <p>No partial matches yet.</p>
-}
-else
-{
-    foreach (var user in Model.PartialMatches)
-    {
-        <div>
-            <a href="@Url.Action("PublicProfile", "Profile", new { id = user.UserId })">
-                @user.FullName
-            </a>
-            | @user.Profession | @user.Location
+<div class="container mt-5 pt-4">
+    <!-- Filters -->
+    <div class="row mb-5 justify-content-end">
+        <div class="col-md-3">
+            <select id="skillFilter" class="form-select">
+                <option value="">Select Skill</option>
+                @foreach (var skill in userLearningSkills)
+                {
+                    <option>@skill</option>
+                }
+            </select>
         </div>
-    }
+
+        <div class="col-md-3">
+            <select id="phaseFilter" class="form-select">
+                <option value="">Select Phase</option>
+                @for (int i = 1; i <= 7; i++)
+                {
+                    <option>@i</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <select id="locationFilter" class="form-select">
+                <option value="">Select Location</option>
+                @foreach (var loc in allDivisions)
+                {
+                    <option>@loc</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <!-- Best Matches -->
+    <h3 class="match-heading">Best Matches</h3>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5" id="bestMatches">
+        @foreach (var person in Model.BestMatches)
+        {
+            var ratingClass = person.SkillsToTeach.Count > 3 ? "bg-primary" :
+                              person.SkillsToTeach.Count > 1 ? "bg-success" : "bg-danger";
+
+            <div class="col person-card"
+                 data-offers="@string.Join(",", person.SkillsToTeach.Select(s=>s.SkillName))"
+                 data-location="@person.Location"
+                 data-maxstage="@person.SkillsToTeach.Max(s=>s.Stage)">
+                <a href="@Url.Action("PublicProfile", "Profile", new { id = person.UserId })" class="card-link">
+                    <div class="card shadow-sm h-100 hover-card">
+                        <div class="card-body">
+                            <div class="row align-items-center mb-3">
+                                <div class="col-3 text-center">
+                                    <img src="~/Content/assests/avatar2.jpg" class="rounded-circle" width="70" height="70" />
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0">@person.FullName</h5>
+                                    <small class="text-muted">@person.Location</small>
+                                </div>
+                                <div class="col-3 text-end">
+                                    <span class="badge @ratingClass rating-badge">@person.SkillsToTeach.Count</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col border-end">
+                                    <h6>Offers</h6>
+                                    @foreach (var skill in person.SkillsToTeach)
+                                    {
+                                        <span class="badge bg-dark me-1 skill-badge">@skill.SkillName</span>
+                                    }
+                                </div>
+                                <div class="col">
+                                    <h6>Seeks</h6>
+                                    @foreach (var skill in person.SkillsToLearn)
+                                    {
+                                        <span class="badge bg-dark me-1 skill-badge">@skill.SkillName</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Partial Matches -->
+    <h3 class="match-heading">Partial Matches</h3>
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="partialMatches">
+        @foreach (var person in Model.PartialMatches)
+        {
+            var ratingClass = person.SkillsToTeach.Count > 3 ? "bg-primary" :
+                              person.SkillsToTeach.Count > 1 ? "bg-success" : "bg-danger";
+
+            <div class="col person-card"
+                 data-offers="@string.Join(",", person.SkillsToTeach.Select(s=>s.SkillName))"
+                 data-location="@person.Location"
+                 data-maxstage="@person.SkillsToTeach.Max(s=>s.Stage)">
+                <a href="@Url.Action("PublicProfile", "Profile", new { id = person.UserId })" class="card-link">
+                    <div class="card shadow-sm h-100 hover-card">
+                        <div class="card-body">
+                            <div class="row align-items-center mb-3">
+                                <div class="col-3 text-center">
+                                    <img src="~/Content/assests/avatar2.jpg" class="rounded-circle" width="60" height="60" />
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0">@person.FullName</h5>
+                                    <small class="text-muted">@person.Location</small>
+                                </div>
+                                <div class="col-3 text-end">
+                                    <span class="badge @ratingClass rating-badge">@person.SkillsToTeach.Count</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h6>Offers</h6>
+                                @foreach (var skill in person.SkillsToTeach)
+                                {
+                                    <span class="badge bg-dark me-1 skill-badge">@skill.SkillName</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        function applyFilters() {
+            var selectedSkill = document.getElementById("skillFilter").value;
+            var selectedPhase = parseInt(document.getElementById("phaseFilter").value) || 0;
+            var selectedLocation = document.getElementById("locationFilter").value;
+
+            document.querySelectorAll(".person-card").forEach(function (card) {
+                var offers = card.getAttribute("data-offers").split(",");
+                var location = card.getAttribute("data-location");
+                var maxStage = parseInt(card.getAttribute("data-maxstage")) || 0;
+
+                var skillMatch = (selectedSkill === "" || offers.includes(selectedSkill));
+                var phaseMatch = (selectedPhase === 0 || maxStage >= selectedPhase);
+                var locationMatch = (selectedLocation === "" || location === selectedLocation);
+
+                card.style.display = (skillMatch && phaseMatch && locationMatch) ? "" : "none";
+            });
+        }
+
+        document.getElementById("skillFilter").addEventListener("change", applyFilters);
+        document.getElementById("phaseFilter").addEventListener("change", applyFilters);
+        document.getElementById("locationFilter").addEventListener("change", applyFilters);
+    </script>
 }
