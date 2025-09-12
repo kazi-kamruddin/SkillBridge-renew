@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using SkillBridge.Models;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -198,6 +199,54 @@ namespace SkillBridge.Controllers
 
             return View(model);
         }
+
+        //////////////////////////////////////////////////////////////////
+
+        public ActionResult PublicProfile(string id)
+        {
+            if (id == null) return HttpNotFound();
+
+            var user = db.Users.FirstOrDefault(u => u.Id == id);
+            if (user == null) return HttpNotFound();
+
+            var userInfo = db.UserInformations.FirstOrDefault(ui => ui.UserId == id);
+
+            var userSkills = db.UserSkills
+                .Include(us => us.Skill.SkillCategory)
+                .Where(us => us.UserId == id)
+                .ToList();
+
+            var model = new PublicProfileViewModel
+            {
+                UserId = user.Id,
+                FullName = userInfo?.FullName ?? "",
+                Profession = userInfo?.Profession ?? "",
+                Location = userInfo?.Location ?? "",
+                Bio = userInfo?.Bio ?? "",
+                SkillsToTeach = userSkills
+                    .Where(us => us.Status == "Teaching")
+                    .Select(us => new SkillViewModel
+                    {
+                        SkillId = us.SkillId,
+                        SkillName = us.Skill.Name,
+                        Stage = us.KnownUpToStage ?? 1
+                    }).ToList(),
+                SkillsToLearn = userSkills
+                    .Where(us => us.Status == "Learning")
+                    .Select(us => new SkillViewModel
+                    {
+                        SkillId = us.SkillId,
+                        SkillName = us.Skill.Name,
+                        Stage = us.KnownUpToStage ?? 1
+                    }).ToList()
+            };
+
+            return View(model);
+        }
+
+
+
+        //////////////////////////////////////////////////////////////////
 
         protected override void Dispose(bool disposing)
         {
