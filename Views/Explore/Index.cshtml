@@ -1,0 +1,37 @@
+@model SkillBridge.Models.ExploreViewModel
+
+<h2>Best Matches</h2>
+@if (!Model.BestMatches.Any())
+{
+    <p>No best matches yet.</p>
+}
+else
+{
+    foreach (var user in Model.BestMatches)
+    {
+        <div>
+            <a href="@Url.Action("PublicProfile", "Profile", new { id = user.UserId })">
+                @user.FullName
+            </a>
+            | @user.Profession | @user.Location
+        </div>
+    }
+}
+
+<h2>Partial Matches</h2>
+@if (!Model.PartialMatches.Any())
+{
+    <p>No partial matches yet.</p>
+}
+else
+{
+    foreach (var user in Model.PartialMatches)
+    {
+        <div>
+            <a href="@Url.Action("PublicProfile", "Profile", new { id = user.UserId })">
+                @user.FullName
+            </a>
+            | @user.Profession | @user.Location
+        </div>
+    }
+}

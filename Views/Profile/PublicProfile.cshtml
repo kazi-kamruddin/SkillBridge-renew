@@ -1,0 +1,25 @@
+@model SkillBridge.Models.PublicProfileViewModel
+
+<h2>@Model.FullName’s Profile</h2>
+
+<p>@Model.Profession | @Model.Location</p>
+<p>@Model.Bio</p>
+
+<h3>Skills to Teach</h3>
+<ul>
+    @foreach (var skill in Model.SkillsToTeach)
+    {
+        <li>
+            @skill.SkillName (Stage: @skill.Stage)
+            <button disabled>Request (coming soon)</button>
+        </li>
+    }
+</ul>
+
+<h3>Skills to Learn</h3>
+<ul>
+    @foreach (var skill in Model.SkillsToLearn)
+    {
+        <li>@skill.SkillName (Stage: @skill.Stage)</li>
+    }
+</ul>
