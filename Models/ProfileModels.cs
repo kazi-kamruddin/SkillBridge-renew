@@ -7,7 +7,56 @@ namespace SkillBridge.Models
     public class IndexViewModel
     {
         public bool HasPassword { get; set; }
+
+        // Personal info
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public string Bio { get; set; }
+        public string Profession { get; set; }
+        public string Location { get; set; }
+        public int Age { get; set; }
+
+        // Skills
+        public List<UserSkillViewModel> TeachingSkills { get; set; }
+        public List<UserSkillViewModel> LearningSkills { get; set; }
     }
+
+
+    public class UserSkillViewModel
+    {
+        public string SkillName { get; set; }
+        public string CategoryName { get; set; }
+        public int KnownUpToStage { get; set; }
+        public int TotalStages { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class UpdateProfileViewModel
+    {
+        // Personal info
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public string Bio { get; set; }
+        public string Profession { get; set; }
+        public string Location { get; set; }
+        public int Age { get; set; }
+
+        // Skills
+        public List<int> SkillsToLearn { get; set; } = new List<int>();
+
+        public List<UserKnownSkill> SkillsIKnow { get; set; } = new List<UserKnownSkill>();
+
+        public List<SkillCategory> AllSkillCategories { get; set; } = new List<SkillCategory>();
+
+        public class UserKnownSkill
+        {
+            public int SkillId { get; set; }
+            public int KnownUpToStage { get; set; }
+        }
+    }
+
+
+
 
     public class ChangePasswordViewModel
     {

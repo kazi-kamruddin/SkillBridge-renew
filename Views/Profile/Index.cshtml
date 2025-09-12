@@ -3,28 +3,81 @@
     ViewBag.Title = "Profile";
 }
 
-<main aria-labelledby="title">
-    <h2 id="title">@ViewBag.Title.</h2>
+<main aria-labelledby="title" class="container mt-4">
+    <h2 id="title">@ViewBag.Title</h2>
 
     <p class="text-success">@ViewBag.StatusMessage</p>
-    <div>
-        <h4>Change your account settings</h4>
-        <hr />
-        <dl class="dl-horizontal">
-            <dt>Password:</dt>
-            <dd>
-                [
-                @if (Model.HasPassword)
-                {
-                    @Html.ActionLink("Change your password", "ChangePassword")
-                }
-                else
-                {
-                    @Html.ActionLink("Create", "SetPassword")
-                }
-                ]
-            </dd>
 
+    <div class="mb-3">
+        <h4>Personal Information</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">Full Name:</dt>
+            <dd class="col-sm-9">@Model.FullName</dd>
+
+            <dt class="col-sm-3">Email:</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Bio:</dt>
+            <dd class="col-sm-9">@Model.Bio</dd>
+
+            <dt class="col-sm-3">Profession:</dt>
+            <dd class="col-sm-9">@Model.Profession</dd>
+
+            <dt class="col-sm-3">Location:</dt>
+            <dd class="col-sm-9">@Model.Location</dd>
+
+            <dt class="col-sm-3">Age:</dt>
+            <dd class="col-sm-9">@Model.Age</dd>
         </dl>
+    </div>
+
+    <div class="mb-3">
+        <h4>Teaching Skills</h4>
+        <hr />
+        @if (Model.TeachingSkills != null && Model.TeachingSkills.Count > 0)
+        {
+            <ul class="list-group">
+                @foreach (var skill in Model.TeachingSkills)
+                {
+                    <li class="list-group-item">
+                        @skill.SkillName (@skill.CategoryName) — Stage @skill.KnownUpToStage of @skill.TotalStages
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No teaching skills added.</p>
+        }
+    </div>
+
+    <div class="mb-3">
+        <h4>Learning Skills</h4>
+        <hr />
+        @if (Model.LearningSkills != null && Model.LearningSkills.Count > 0)
+        {
+            <ul class="list-group">
+                @foreach (var skill in Model.LearningSkills)
+                {
+                    <li class="list-group-item">
+                        @skill.SkillName (@skill.CategoryName) — Stage @skill.KnownUpToStage of @skill.TotalStages
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No learning skills added.</p>
+        }
+    </div>
+
+    <div class="mt-3">
+        <a class="btn btn-outline-primary me-2" href="@Url.Action("ChangePassword", "Profile")">
+            Change Password
+        </a>
+        <a class="btn btn-outline-success" href="@Url.Action("UpdateProfile", "Profile")">
+            Update Profile
+        </a>
     </div>
 </main>
