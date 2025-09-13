@@ -30,14 +30,11 @@
 
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle position-relative" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="@Url.Action("Index", "Notifications")" title="Notifications">
                                 <i class="fas fa-bell"></i>
-                                <span class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none;"></span>
+                                <span id="notifBadge" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none;"></span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notifDropdown">
-                                <li><span class="dropdown-item text-muted">Loading...</span></li>
-                            </ul>
                         </li>
                     }
                 </ul>
@@ -59,37 +56,20 @@
 
     <script>
         $(document).ready(function () {
-            function loadNotifications() {
+            // Update unread notification count dynamically
+            function updateNotifBadge() {
                 $.get('@Url.Action("GetNotifications", "Notifications")', function (data) {
-                    var menu = $("#notifDropdown").next(".dropdown-menu");
-                    var badge = $("#notifDropdown .badge");
-                    menu.empty();
-
-                    if (data.notifications.length === 0) {
-                        menu.append('<li><span class="dropdown-item text-muted">No notifications</span></li>');
-                        badge.hide();
-                    } else {
+                    var badge = $("#notifBadge");
+                    if (data.unreadCount > 0) {
                         badge.text(data.unreadCount).show();
-                        data.notifications.forEach(function (n) {
-                            var itemClass = n.IsRead ? "" : "fw-bold";
-                            menu.append('<li><a href="' + n.Url + '" class="dropdown-item ' + itemClass + '" data-id="' + n.Id + '">' + n.Message + '</a></li>');
-                        });
-                        menu.append('<li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-center" href="@Url.Action("Index", "Notifications")">View All Notifications</a></li>');
+                    } else {
+                        badge.hide();
                     }
                 });
             }
 
-            loadNotifications();
-            setInterval(loadNotifications, 10000);
-
-            $(document).on("click", "#notifDropdown + .dropdown-menu a.dropdown-item", function (e) {
-                var id = $(this).data("id");
-                if (!id) return;
-                e.preventDefault();
-                $.post('@Url.Action("MarkAsRead", "Notifications")', { id: id }, function () {
-                    loadNotifications();
-                });
-            });
+            updateNotifBadge();
+            setInterval(updateNotifBadge, 10000); // refresh every 10 seconds
         });
     </script>
 </body>

@@ -40,17 +40,16 @@ namespace SkillBridge.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            // Interactions → AspNetUsers
             modelBuilder.Entity<Interaction>()
-                .HasRequired(i => i.Requester)
+                .HasRequired(i => i.User1)
                 .WithMany()
-                .HasForeignKey(i => i.RequesterId)
+                .HasForeignKey(i => i.User1Id)
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Interaction>()
-                .HasRequired(i => i.Receiver)
+                .HasRequired(i => i.User2)
                 .WithMany()
-                .HasForeignKey(i => i.ReceiverId)
+                .HasForeignKey(i => i.User2Id)
                 .WillCascadeOnDelete(false);
 
             // Ratings → AspNetUsers
@@ -67,15 +66,15 @@ namespace SkillBridge.Models
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Interaction>()
-                .HasRequired(i => i.SkillRequested)
+                .HasRequired(i => i.SkillFromTeacher)
                 .WithMany()
-                .HasForeignKey(i => i.SkillRequestedId)
+                .HasForeignKey(i => i.SkillFromTeacherId)
                 .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Interaction>()
-                .HasRequired(i => i.SkillOffered)
+                .HasRequired(i => i.SkillFromRequester)
                 .WithMany()
-                .HasForeignKey(i => i.SkillOfferedId)
+                .HasForeignKey(i => i.SkillFromRequesterId)
                 .WillCascadeOnDelete(false);
 
             // SkillRequests → AspNetUsers

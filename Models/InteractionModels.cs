@@ -10,25 +10,27 @@ namespace SkillBridge.Models
         [Key]
         public int Id { get; set; }
 
+        // Two users in the interaction
         [Required]
-        public string RequesterId { get; set; }
-        [ForeignKey("RequesterId")]
-        public virtual ApplicationUser Requester { get; set; }
+        public string User1Id { get; set; }
+        [ForeignKey("User1Id")]
+        public virtual ApplicationUser User1 { get; set; }
 
         [Required]
-        public string ReceiverId { get; set; }
-        [ForeignKey("ReceiverId")]
-        public virtual ApplicationUser Receiver { get; set; }
+        public string User2Id { get; set; }
+        [ForeignKey("User2Id")]
+        public virtual ApplicationUser User2 { get; set; }
+
+        // Skills being exchanged
+        [Required]
+        public int SkillFromTeacherId { get; set; }
+        [ForeignKey("SkillFromTeacherId")]
+        public virtual Skill SkillFromTeacher { get; set; }
 
         [Required]
-        public int SkillOfferedId { get; set; }
-        [ForeignKey("SkillOfferedId")]
-        public virtual Skill SkillOffered { get; set; }
-
-        [Required]
-        public int SkillRequestedId { get; set; }
-        [ForeignKey("SkillRequestedId")]
-        public virtual Skill SkillRequested { get; set; }
+        public int SkillFromRequesterId { get; set; }
+        [ForeignKey("SkillFromRequesterId")]
+        public virtual Skill SkillFromRequester { get; set; }
 
         [Required]
         [StringLength(20)]
@@ -59,8 +61,9 @@ namespace SkillBridge.Models
         [Range(1, 7)]
         public int StageNumber { get; set; }
 
-        public bool LearnerConfirmed { get; set; } = false;
-        public bool MentorConfirmed { get; set; } = false;
+        // Updated to generic confirmations
+        public bool User1Confirmed { get; set; } = false;
+        public bool User2Confirmed { get; set; } = false;
 
         [Required]
         [StringLength(20)]
@@ -95,6 +98,7 @@ namespace SkillBridge.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 
+    // Notification stays unchanged
     public class Notification
     {
         [Key]
@@ -107,9 +111,9 @@ namespace SkillBridge.Models
 
         [Required]
         [StringLength(50)]
-        public string Type { get; set; }   
+        public string Type { get; set; }
 
-        public int? ReferenceId { get; set; }  
+        public int? ReferenceId { get; set; }
         [Required]
         public string Message { get; set; }
 

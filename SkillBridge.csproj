@@ -198,6 +198,10 @@
     <Compile Include="Migrations\202509131107511_AddSkillRequestsTable.Designer.cs">
       <DependentUpon>202509131107511_AddSkillRequestsTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509131712157_RenameInteractionColumns.cs" />
+    <Compile Include="Migrations\202509131712157_RenameInteractionColumns.Designer.cs">
+      <DependentUpon>202509131712157_RenameInteractionColumns.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CompleteProfileViewModel.cs" />
@@ -342,6 +346,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509131107511_AddSkillRequestsTable.resx">
       <DependentUpon>202509131107511_AddSkillRequestsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509131712157_RenameInteractionColumns.resx">
+      <DependentUpon>202509131712157_RenameInteractionColumns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
