@@ -78,8 +78,11 @@ namespace SkillBridge.Controllers
             if (notif == null || notif.Type != "SkillRequest") return Json(new { success = false });
 
             var skillRequest = _context.SkillRequests.FirstOrDefault(r => r.Id == notif.ReferenceId);
-            if (skillRequest != null)
+            if (skillRequest != null && skillRequest.Status == "Pending")
             {
+                // Update skill request status
+                skillRequest.Status = "Declined";
+
                 // Update original notification to Info type
                 notif.Type = "Info";
                 notif.Message = $"You declined the skill request for <b>{skillRequest.Skill.Name}</b> from {skillRequest.Requester.UserName}.";
@@ -111,11 +114,11 @@ namespace SkillBridge.Controllers
 
             var skillRequest = _context.SkillRequests
                 .Include(r => r.Skill)
-                .FirstOrDefault(r => r.Id == notif.ReferenceId);
+                .FirstOrDefault(r => r.Id == notif.ReferenceId && r.Status == "Pending");
             if (skillRequest == null) return Json(new { skills = new object[0] }, JsonRequestBehavior.AllowGet);
 
             var requesterId = skillRequest.RequesterId;
-            var receiverId = userId; // current logged-in user
+            var receiverId = userId;
 
             var requesterSkills = _context.UserSkills
                 .Include(us => us.Skill)
@@ -140,7 +143,7 @@ namespace SkillBridge.Controllers
             var notif = _context.Notifications.FirstOrDefault(n => n.Id == notificationId && n.UserId == userId);
             if (notif == null || notif.Type != "SkillRequest") return Json(new { success = false });
 
-            var skillRequest = _context.SkillRequests.FirstOrDefault(r => r.Id == notif.ReferenceId);
+            var skillRequest = _context.SkillRequests.FirstOrDefault(r => r.Id == notif.ReferenceId && r.Status == "Pending");
             if (skillRequest == null) return Json(new { success = false });
 
             var interaction = new Interaction
@@ -153,6 +156,9 @@ namespace SkillBridge.Controllers
                 CreatedAt = DateTime.Now
             };
             _context.Interactions.Add(interaction);
+
+            // Update skill request status
+            skillRequest.Status = "Accepted";
 
             // Update original notification to Info type
             notif.Type = "Info";

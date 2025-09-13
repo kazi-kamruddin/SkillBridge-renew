@@ -14,6 +14,7 @@
 <ul id="skillsToTeachList">
     @foreach (var skill in Model.SkillsToTeach)
     {
+        var showButton = skill.RequestStatus != "Hidden";
         var buttonText = "Request";
         var isDisabled = false;
 
@@ -22,12 +23,15 @@
 
         <li>
             @skill.SkillName (Stage: @skill.Stage)
-            <button class="btn btn-primary requestSkillBtn"
-                    data-userskill-id="@skill.UserSkillId"
-                    data-profile-id="@Model.UserId"
-                    @((isDisabled) ? "disabled=\"disabled\"" : "")>
-                @buttonText
-            </button>
+            @if (showButton)
+            {
+                <button class="btn btn-primary requestSkillBtn"
+                        data-userskill-id="@skill.UserSkillId"
+                        data-profile-id="@Model.UserId"
+                        @((isDisabled) ? "disabled=\"disabled\"" : "")>
+                    @buttonText
+                </button>
+            }
         </li>
     }
 </ul>

@@ -193,6 +193,7 @@ namespace SkillBridge.Controllers
         }
 
         //////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////////////////////////
         // GET: /Profile/PublicProfile
         public ActionResult PublicProfile(string id)
         {
@@ -204,30 +205,44 @@ namespace SkillBridge.Controllers
             var userInfo = db.UserInformations.FirstOrDefault(ui => ui.UserId == id);
             var currentUserId = User.Identity.GetUserId();
 
+            // All skills of the profile owner
             var userSkills = db.UserSkills
                 .Include(us => us.Skill.SkillCategory)
                 .Where(us => us.UserId == id)
                 .ToList();
 
+            // Visitor's learning skills
+            var visitorLearningSkillIds = db.UserSkills
+                .Where(us => us.UserId == currentUserId && us.Status == "Learning")
+                .Select(us => us.SkillId)
+                .ToList();
+
+            // Map skills to ViewModel
             var skillsToTeachVm = new List<SkillViewModel>();
             foreach (var skill in userSkills.Where(us => us.Status == "Teaching"))
             {
+                // Check if the visitor wants to learn this skill
+                bool visitorWantsThisSkill = visitorLearningSkillIds.Contains(skill.SkillId);
+
+                // Check existing request for this skill (any status)
                 var existingRequest = db.SkillRequests
-                    .FirstOrDefault(r => r.SkillId == skill.SkillId &&
-                                         r.RequesterId == currentUserId &&
-                                         r.ReceiverId == id);
+                    .Where(r => r.SkillId == skill.SkillId &&
+                                r.RequesterId == currentUserId &&
+                                r.ReceiverId == id)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .FirstOrDefault();
 
                 skillsToTeachVm.Add(new SkillViewModel
                 {
                     UserSkillId = skill.Id,
                     SkillId = skill.SkillId,
                     SkillName = skill.Skill.Name,
-                    Stage = skill.Status == "Learning"
-                        ? (skill.KnownUpToStage ?? 0)   // learners: start at 0
-                        : (skill.KnownUpToStage ?? 1),  // teachers: at least 1
-                    RequestStatus = existingRequest != null
-                        ? (existingRequest.Status == "Pending" ? "Pending" : "Declined")
-                        : "None"
+                    Stage = skill.KnownUpToStage ?? 1,
+                    RequestStatus = visitorWantsThisSkill
+                        ? (existingRequest != null
+                            ? (existingRequest.Status == "Pending" ? "Pending" : "Declined")
+                            : "None")
+                        : "Hidden" // No request button if visitor doesn't want to learn
                 });
             }
 
@@ -245,9 +260,7 @@ namespace SkillBridge.Controllers
                     {
                         SkillId = us.SkillId,
                         SkillName = us.Skill.Name,
-                        Stage = us.Status == "Learning"
-                            ? (us.KnownUpToStage ?? 0)   // learners start at 0
-                            : (us.KnownUpToStage ?? 1),  // teachers min 1
+                        Stage = us.KnownUpToStage ?? 0,
                         RequestStatus = "None"
                     }).ToList()
             };
@@ -265,7 +278,6 @@ namespace SkillBridge.Controllers
             if (currentUserId == null)
                 return Json(new { success = false, message = "You must be logged in." });
 
-            // Look up the specific UserSkill row for the profile owner
             var userSkill = db.UserSkills
                 .Include("Skill")
                 .FirstOrDefault(us => us.Id == userSkillId && us.UserId == profileId);
@@ -273,15 +285,15 @@ namespace SkillBridge.Controllers
             if (userSkill == null)
                 return Json(new { success = false, message = "Skill not found for this user." });
 
-            // Prevent users from requesting their own skills
             if (userSkill.UserId == currentUserId)
                 return Json(new { success = false, message = "You cannot request your own skill." });
 
-            // Check if a request already exists for this skill and receiver
+            // Check for existing Pending request only
             var existingRequest = db.SkillRequests
                 .FirstOrDefault(r => r.SkillId == userSkill.SkillId &&
                                      r.RequesterId == currentUserId &&
-                                     r.ReceiverId == userSkill.UserId);
+                                     r.ReceiverId == userSkill.UserId &&
+                                     r.Status == "Pending");
 
             if (existingRequest != null)
                 return Json(new { success = false, message = "Request already sent." });
@@ -289,7 +301,7 @@ namespace SkillBridge.Controllers
             // Create new skill request
             var request = new SkillRequest
             {
-                SkillId = userSkill.SkillId,   // base skill reference
+                SkillId = userSkill.SkillId,
                 RequesterId = currentUserId,
                 ReceiverId = userSkill.UserId,
                 Status = "Pending",
@@ -297,13 +309,13 @@ namespace SkillBridge.Controllers
             };
 
             db.SkillRequests.Add(request);
-            db.SaveChanges(); // save to get request.Id
+            db.SaveChanges();
 
             // Create notification for the receiver
             var requester = UserManager.FindById(currentUserId);
             var notification = new Notification
             {
-                UserId = userSkill.UserId, // receiver
+                UserId = userSkill.UserId,
                 Type = "SkillRequest",
                 ReferenceId = request.Id,
                 Message = $"<a href='{Url.Action("PublicProfile", "Profile", new { id = requester.Id })}'>{requester.UserName}</a> requested your skill: <b>{userSkill.Skill.Name}</b>",
@@ -316,6 +328,7 @@ namespace SkillBridge.Controllers
 
             return Json(new { success = true });
         }
+
 
 
         //////////////////////////////////////////////////////////////////
