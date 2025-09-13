@@ -140,7 +140,8 @@ namespace SkillBridge.Controllers
                     {
                         UserId = userId,
                         SkillId = skillId,
-                        Status = "Learning"
+                        Status = "Learning",
+                        KnownUpToStage = 0
                     });
                 }
             }
@@ -221,10 +222,12 @@ namespace SkillBridge.Controllers
                     UserSkillId = skill.Id,
                     SkillId = skill.SkillId,
                     SkillName = skill.Skill.Name,
-                    Stage = skill.KnownUpToStage ?? 1,
+                    Stage = skill.Status == "Learning"
+                        ? (skill.KnownUpToStage ?? 0)   // learners: start at 0
+                        : (skill.KnownUpToStage ?? 1),  // teachers: at least 1
                     RequestStatus = existingRequest != null
-                                    ? (existingRequest.Status == "Pending" ? "Pending" : "Declined")
-                                    : "None"
+                        ? (existingRequest.Status == "Pending" ? "Pending" : "Declined")
+                        : "None"
                 });
             }
 
@@ -242,7 +245,9 @@ namespace SkillBridge.Controllers
                     {
                         SkillId = us.SkillId,
                         SkillName = us.Skill.Name,
-                        Stage = us.KnownUpToStage ?? 1,
+                        Stage = us.Status == "Learning"
+                            ? (us.KnownUpToStage ?? 0)   // learners start at 0
+                            : (us.KnownUpToStage ?? 1),  // teachers min 1
                         RequestStatus = "None"
                     }).ToList()
             };

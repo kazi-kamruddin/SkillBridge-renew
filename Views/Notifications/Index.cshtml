@@ -18,7 +18,8 @@ else
                 @Html.Raw(n.Message)
                 <small class="text-muted float-right">@n.CreatedAt.ToLocalTime().ToString("g")</small>
 
-                @if (!n.IsRead)
+                @* Only show buttons for SkillRequest type *@
+                @if (n.Type == "SkillRequest" && !n.IsRead)
                 {
                     <div class="mt-2">
                         <button class="btn btn-sm btn-success accept-btn" data-id="@n.Id">Accept</button>

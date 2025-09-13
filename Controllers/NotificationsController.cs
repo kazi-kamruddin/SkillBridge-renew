@@ -75,15 +75,17 @@ namespace SkillBridge.Controllers
         {
             var userId = User.Identity.GetUserId();
             var notif = _context.Notifications.FirstOrDefault(n => n.Id == notificationId && n.UserId == userId);
-            if (notif == null) return Json(new { success = false });
+            if (notif == null || notif.Type != "SkillRequest") return Json(new { success = false });
 
-            notif.IsRead = true;
-            _context.SaveChanges();
-
-            // Notify requester that request was declined
             var skillRequest = _context.SkillRequests.FirstOrDefault(r => r.Id == notif.ReferenceId);
             if (skillRequest != null)
             {
+                // Update original notification to Info type
+                notif.Type = "Info";
+                notif.Message = $"You declined the skill request for <b>{skillRequest.Skill.Name}</b> from {skillRequest.Requester.UserName}.";
+                notif.IsRead = true;
+
+                // Notify requester
                 _context.Notifications.Add(new Notification
                 {
                     UserId = skillRequest.RequesterId,
@@ -92,30 +94,42 @@ namespace SkillBridge.Controllers
                     CreatedAt = DateTime.Now,
                     IsRead = false
                 });
+
                 _context.SaveChanges();
             }
 
             return Json(new { success = true });
         }
 
-        // GET: Accept request → return skills requester can teach
+        // GET: Accept request → return skills requester can teach that current user wants to learn
         [HttpGet]
         public JsonResult AcceptSkillRequest(int notificationId)
         {
             var userId = User.Identity.GetUserId();
             var notif = _context.Notifications.FirstOrDefault(n => n.Id == notificationId && n.UserId == userId);
-            if (notif == null) return Json(new { skills = new object[0] }, JsonRequestBehavior.AllowGet);
+            if (notif == null || notif.Type != "SkillRequest") return Json(new { skills = new object[0] }, JsonRequestBehavior.AllowGet);
 
-            var skillRequest = _context.SkillRequests.FirstOrDefault(r => r.Id == notif.ReferenceId);
+            var skillRequest = _context.SkillRequests
+                .Include(r => r.Skill)
+                .FirstOrDefault(r => r.Id == notif.ReferenceId);
             if (skillRequest == null) return Json(new { skills = new object[0] }, JsonRequestBehavior.AllowGet);
 
-            // Find skills requester knows that current user wants to learn
-            var userSkills = _context.UserSkills
-                .Where(us => us.UserId == skillRequest.RequesterId && us.Status == "Known")
-                .Select(us => new { us.SkillId, us.Skill.Name })
+            var requesterId = skillRequest.RequesterId;
+            var receiverId = userId; // current logged-in user
+
+            var requesterSkills = _context.UserSkills
+                .Include(us => us.Skill)
+                .Where(us => us.UserId == requesterId && us.Status == "Teaching");
+
+            var receiverSkills = _context.UserSkills
+                .Where(us => us.UserId == receiverId && us.Status == "Learning");
+
+            var matchingSkills = requesterSkills
+                .Where(rs => receiverSkills.Any(ls => ls.SkillId == rs.SkillId))
+                .Select(rs => new { rs.SkillId, rs.Skill.Name })
                 .ToList();
 
-            return Json(new { skills = userSkills }, JsonRequestBehavior.AllowGet);
+            return Json(new { skills = matchingSkills }, JsonRequestBehavior.AllowGet);
         }
 
         // POST: Initialize interaction after selecting skill
@@ -124,24 +138,25 @@ namespace SkillBridge.Controllers
         {
             var userId = User.Identity.GetUserId();
             var notif = _context.Notifications.FirstOrDefault(n => n.Id == notificationId && n.UserId == userId);
-            if (notif == null) return Json(new { success = false });
+            if (notif == null || notif.Type != "SkillRequest") return Json(new { success = false });
 
             var skillRequest = _context.SkillRequests.FirstOrDefault(r => r.Id == notif.ReferenceId);
             if (skillRequest == null) return Json(new { success = false });
 
-            // Create interaction using new model columns
             var interaction = new Interaction
             {
-                User1Id = userId, // current user (teacher)
-                User2Id = skillRequest.RequesterId, // requester
-                SkillFromTeacherId = skillRequest.SkillId, // what current user teaches
-                SkillFromRequesterId = skillId, // what requester teaches
+                User1Id = userId,
+                User2Id = skillRequest.RequesterId,
+                SkillFromTeacherId = skillRequest.SkillId,
+                SkillFromRequesterId = skillId,
                 Status = "Ongoing",
                 CreatedAt = DateTime.Now
             };
             _context.Interactions.Add(interaction);
 
-            // Mark notification as read
+            // Update original notification to Info type
+            notif.Type = "Info";
+            notif.Message = $"You accepted the skill request for <b>{skillRequest.Skill.Name}</b> from {skillRequest.Requester.UserName}.";
             notif.IsRead = true;
 
             // Notify requester
