@@ -23,8 +23,9 @@
         <li>
             @skill.SkillName (Stage: @skill.Stage)
             <button class="btn btn-primary requestSkillBtn"
-                    data-skill-id="@skill.SkillId"
-                    @(isDisabled ? "disabled" : "")>
+                    data-userskill-id="@skill.UserSkillId"
+                    data-profile-id="@Model.UserId"
+                    @((isDisabled) ? "disabled=\"disabled\"" : "")>
                 @buttonText
             </button>
         </li>
@@ -45,14 +46,15 @@
         $(document).ready(function () {
             $(".requestSkillBtn").click(function () {
                 var $btn = $(this);
-                var skillId = $btn.data("skill-id");
+                var userSkillId = $btn.data("userskill-id");
+                var profileId = $btn.data("profile-id");
 
                 if (!confirm("Send a request to learn " + $btn.closest("li").text() + "?")) return;
 
                 $.ajax({
                     url: '@Url.Action("SendSkillRequest", "Profile")',
                     type: 'POST',
-                    data: { skillId: skillId },
+                    data: { userSkillId: userSkillId, profileId: profileId },
                     success: function (res) {
                         if (res.success) {
                             $btn.text("Request Sent");

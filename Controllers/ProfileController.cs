@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using SkillBridge.Models;
+using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using System.Collections.Generic;
 
 namespace SkillBridge.Controllers
 {
@@ -217,6 +218,7 @@ namespace SkillBridge.Controllers
 
                 skillsToTeachVm.Add(new SkillViewModel
                 {
+                    UserSkillId = skill.Id,
                     SkillId = skill.SkillId,
                     SkillName = skill.Skill.Name,
                     Stage = skill.KnownUpToStage ?? 1,
@@ -248,48 +250,68 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
-        //////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////
+
         // POST: /Profile/SendSkillRequest
         [HttpPost]
-        public JsonResult SendSkillRequest(int skillId)
+        public JsonResult SendSkillRequest(int userSkillId, string profileId)
         {
             var currentUserId = User.Identity.GetUserId();
             if (currentUserId == null)
                 return Json(new { success = false, message = "You must be logged in." });
 
-            var skill = db.UserSkills.Include("Skill").FirstOrDefault(s => s.SkillId == skillId);
-            if (skill == null)
-                return Json(new { success = false, message = "Skill not found." });
+            // Look up the specific UserSkill row for the profile owner
+            var userSkill = db.UserSkills
+                .Include("Skill")
+                .FirstOrDefault(us => us.Id == userSkillId && us.UserId == profileId);
 
-            // Cannot request your own skill
-            if (skill.UserId == currentUserId)
+            if (userSkill == null)
+                return Json(new { success = false, message = "Skill not found for this user." });
+
+            // Prevent users from requesting their own skills
+            if (userSkill.UserId == currentUserId)
                 return Json(new { success = false, message = "You cannot request your own skill." });
 
-            // Check if request already exists
+            // Check if a request already exists for this skill and receiver
             var existingRequest = db.SkillRequests
-                .FirstOrDefault(r => r.SkillId == skillId &&
+                .FirstOrDefault(r => r.SkillId == userSkill.SkillId &&
                                      r.RequesterId == currentUserId &&
-                                     r.ReceiverId == skill.UserId);
+                                     r.ReceiverId == userSkill.UserId);
 
             if (existingRequest != null)
-            {
                 return Json(new { success = false, message = "Request already sent." });
-            }
 
-            // Create new request
+            // Create new skill request
             var request = new SkillRequest
             {
-                SkillId = skillId,
+                SkillId = userSkill.SkillId,   // base skill reference
                 RequesterId = currentUserId,
-                ReceiverId = skill.UserId,
-                Status = "Pending"
+                ReceiverId = userSkill.UserId,
+                Status = "Pending",
+                CreatedAt = DateTime.Now
             };
 
             db.SkillRequests.Add(request);
+            db.SaveChanges(); // save to get request.Id
+
+            // Create notification for the receiver
+            var requester = UserManager.FindById(currentUserId);
+            var notification = new Notification
+            {
+                UserId = userSkill.UserId, // receiver
+                Type = "SkillRequest",
+                ReferenceId = request.Id,
+                Message = $"<a href='{Url.Action("PublicProfile", "Profile", new { id = requester.Id })}'>{requester.UserName}</a> requested your skill: <b>{userSkill.Skill.Name}</b>",
+                IsRead = false,
+                CreatedAt = DateTime.Now
+            };
+
+            db.Notifications.Add(notification);
             db.SaveChanges();
 
             return Json(new { success = true });
         }
+
 
         //////////////////////////////////////////////////////////////////
         protected override void Dispose(bool disposing)
