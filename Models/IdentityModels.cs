@@ -29,6 +29,55 @@ namespace SkillBridge.Models
         public DbSet<SkillStage> SkillStages { get; set; }
         public DbSet<UserInformation> UserInformations { get; set; }
         public DbSet<UserSkill> UserSkills { get; set; }
+        public DbSet<Interaction> Interactions { get; set; }
+        public DbSet<InteractionSession> InteractionSessions { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Interactions → AspNetUsers
+            modelBuilder.Entity<Interaction>()
+                .HasRequired(i => i.Requester)
+                .WithMany()
+                .HasForeignKey(i => i.RequesterId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Interaction>()
+                .HasRequired(i => i.Receiver)
+                .WithMany()
+                .HasForeignKey(i => i.ReceiverId)
+                .WillCascadeOnDelete(false);
+
+            // Ratings → AspNetUsers
+            modelBuilder.Entity<Rating>()
+                .HasRequired(r => r.FromUser)
+                .WithMany()
+                .HasForeignKey(r => r.FromUserId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Rating>()
+                .HasRequired(r => r.ToUser)
+                .WithMany()
+                .HasForeignKey(r => r.ToUserId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Interaction>()
+                .HasRequired(i => i.SkillRequested)
+                .WithMany()
+                .HasForeignKey(i => i.SkillRequestedId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Interaction>()
+                .HasRequired(i => i.SkillOffered)
+                .WithMany()
+                .HasForeignKey(i => i.SkillOfferedId)
+                .WillCascadeOnDelete(false);
+        }
+
 
         public static ApplicationDbContext Create()
         {

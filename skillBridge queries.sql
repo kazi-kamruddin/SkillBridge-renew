@@ -7,6 +7,14 @@ select * from dbo.SkillStages;
 select * from dbo.AspNetUsers;
 select * from dbo.UserSkills;
 select * from dbo.UserInformations;
+select * from dbo.Interactions;
+select * from dbo.AspNetUsers;
+select * from dbo.UserSkills;
+select * from dbo.UserInformations;
+select * from dbo.Interactions;
+select * from dbo.InteractionSessions;
+select * from dbo.Notifications;
+select * from dbo.Ratings;
 
 DELETE FROM dbo.UserSkills
 WHERE Status IN (

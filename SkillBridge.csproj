@@ -188,11 +188,16 @@
     <Compile Include="Migrations\202509111827435_AddUserInformationAndUserSkills.Designer.cs">
       <DependentUpon>202509111827435_AddUserInformationAndUserSkills.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509130736499_AddAllInteractionsFeature.cs" />
+    <Compile Include="Migrations\202509130736499_AddAllInteractionsFeature.Designer.cs">
+      <DependentUpon>202509130736499_AddAllInteractionsFeature.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CompleteProfileViewModel.cs" />
     <Compile Include="Models\ExploreViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\InteractionModels.cs" />
     <Compile Include="Models\ProfileModels.cs" />
     <Compile Include="Models\PublicProfileViewModel.cs" />
     <Compile Include="Models\SkillModels.cs" />
@@ -239,6 +244,17 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Styles\about.css" />
+    <Content Include="Styles\changePassword.css" />
+    <Content Include="Styles\contacts.css" />
+    <Content Include="Styles\indexCompleteProfile.css" />
+    <Content Include="Styles\indexExplore.css" />
+    <Content Include="Styles\indexHome.css" />
+    <Content Include="Styles\indexProfile.css" />
+    <Content Include="Styles\login.css" />
+    <Content Include="Styles\publicProfile.css" />
+    <Content Include="Styles\register.css" />
+    <Content Include="Styles\resetPassword.css" />
     <Content Include="Styles\updateProfile.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -308,6 +324,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509111827435_AddUserInformationAndUserSkills.resx">
       <DependentUpon>202509111827435_AddUserInformationAndUserSkills.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509130736499_AddAllInteractionsFeature.resx">
+      <DependentUpon>202509130736499_AddAllInteractionsFeature.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
