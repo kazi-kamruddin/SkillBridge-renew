@@ -7,6 +7,16 @@ select * from dbo.SkillStages;
 select * from dbo.AspNetUsers;
 select * from dbo.UserSkills;
 select * from dbo.UserInformations;
+select * from dbo.Interactions;
+select * from dbo.AspNetUsers;
+select * from dbo.UserSkills;
+select * from dbo.UserInformations;
+select * from dbo.Interactions;
+select * from dbo.InteractionSessions;
+select * from dbo.Ratings;
+select * from dbo.AspNetUsers;
+select * from dbo.Notifications;
+select * from dbo.SkillRequests;
 
 DELETE FROM dbo.UserSkills
 WHERE Status IN (
@@ -33,6 +43,4 @@ WHERE Email IN (
     'e@a.com',
     'w@w.com'
 );
-
-
 

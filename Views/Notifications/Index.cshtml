@@ -1,0 +1,109 @@
+@model List<SkillBridge.Models.Notification>
+@{
+    ViewBag.Title = "Notifications";
+}
+
+<h2>Notifications</h2>
+
+@if (!Model.Any())
+{
+    <p>No notifications.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var n in Model)
+        {
+            <li class="list-group-item @(n.IsRead ? "" : "list-group-item-info")" data-id="@n.Id">
+                @Html.Raw(n.Message)
+                <small class="text-muted float-right">@n.CreatedAt.ToLocalTime().ToString("g")</small>
+
+                @* Only show buttons for Pending SkillRequest type *@
+                @if (n.Type == "SkillRequest" && !n.IsRead)
+                {
+                    <div class="mt-2">
+                        <button class="btn btn-sm btn-success accept-btn" data-id="@n.Id">Accept</button>
+                        <button class="btn btn-sm btn-danger decline-btn" data-id="@n.Id">Decline</button>
+                    </div>
+
+                    <div class="mt-2 skill-selection d-none" data-id="@n.Id">
+                        <label>Select skill to learn from requester:</label>
+                        <select class="form-control skill-dropdown" data-id="@n.Id"></select>
+                        <button class="btn btn-sm btn-primary mt-1 initialize-btn" data-id="@n.Id">Start Interaction</button>
+                    </div>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Mark as read button
+            $(".mark-read").click(function () {
+                var btn = $(this);
+                var id = btn.data("id");
+                $.post("/Notifications/MarkAsRead/" + id, function (res) {
+                    if (res.success) {
+                        btn.closest("li").removeClass("list-group-item-info");
+                        btn.remove();
+                    }
+                });
+            });
+
+            // Decline skill request
+            $(".decline-btn").click(function () {
+                var btn = $(this);
+                var id = btn.data("id");
+                $.post("/Notifications/DeclineSkillRequest", { notificationId: id }, function (res) {
+                    if (res.success) {
+                        btn.closest("li").removeClass("list-group-item-info");
+                        btn.closest("li").fadeOut();
+                    }
+                });
+            });
+
+            // Accept skill request ? show skill dropdown
+            $(".accept-btn").click(function () {
+                var btn = $(this);
+                var id = btn.data("id");
+                var container = $(".skill-selection[data-id='" + id + "']");
+                var dropdown = container.find(".skill-dropdown");
+
+                $.get("/Notifications/AcceptSkillRequest", { notificationId: id }, function (res) {
+                    dropdown.empty();
+                    if (res.skills.length === 0) {
+                        dropdown.append('<option value="">No skills available</option>');
+                    } else {
+                        $.each(res.skills, function (i, skill) {
+                            dropdown.append('<option value="' + skill.SkillId + '">' + skill.Name + '</option>');
+                        });
+                    }
+                    container.removeClass("d-none");
+                });
+            });
+
+            // Initialize interaction
+            $(".initialize-btn").click(function () {
+                var btn = $(this);
+                var id = btn.data("id");
+                var dropdown = $(".skill-selection[data-id='" + id + "']").find(".skill-dropdown");
+                var selectedSkillId = dropdown.val();
+                if (!selectedSkillId) {
+                    alert("Please select a skill to learn from requester.");
+                    return;
+                }
+
+                $.post("/Notifications/InitializeInteraction", { notificationId: id, skillId: selectedSkillId }, function (res) {
+                    if (res.success) {
+                        btn.closest("li").removeClass("list-group-item-info");
+                        btn.closest("li").fadeOut();
+                    } else {
+                        alert("Failed to initialize interaction.");
+                    }
+                });
+            });
+        });
+    </script>
+}

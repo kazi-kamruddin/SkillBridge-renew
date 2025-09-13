@@ -29,6 +29,75 @@ namespace SkillBridge.Models
         public DbSet<SkillStage> SkillStages { get; set; }
         public DbSet<UserInformation> UserInformations { get; set; }
         public DbSet<UserSkill> UserSkills { get; set; }
+        public DbSet<Interaction> Interactions { get; set; }
+        public DbSet<InteractionSession> InteractionSessions { get; set; }
+        public DbSet<Rating> Ratings { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<SkillRequest> SkillRequests { get; set; }
+
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Interaction>()
+                .HasRequired(i => i.User1)
+                .WithMany()
+                .HasForeignKey(i => i.User1Id)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Interaction>()
+                .HasRequired(i => i.User2)
+                .WithMany()
+                .HasForeignKey(i => i.User2Id)
+                .WillCascadeOnDelete(false);
+
+            // Ratings → AspNetUsers
+            modelBuilder.Entity<Rating>()
+                .HasRequired(r => r.FromUser)
+                .WithMany()
+                .HasForeignKey(r => r.FromUserId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Rating>()
+                .HasRequired(r => r.ToUser)
+                .WithMany()
+                .HasForeignKey(r => r.ToUserId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Interaction>()
+                .HasRequired(i => i.SkillFromTeacher)
+                .WithMany()
+                .HasForeignKey(i => i.SkillFromTeacherId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Interaction>()
+                .HasRequired(i => i.SkillFromRequester)
+                .WithMany()
+                .HasForeignKey(i => i.SkillFromRequesterId)
+                .WillCascadeOnDelete(false);
+
+            // SkillRequests → AspNetUsers
+            modelBuilder.Entity<SkillRequest>()
+                .HasRequired(r => r.Requester)
+                .WithMany()
+                .HasForeignKey(r => r.RequesterId)
+                .WillCascadeOnDelete(false);  // important
+
+            modelBuilder.Entity<SkillRequest>()
+                .HasRequired(r => r.Receiver)
+                .WithMany()
+                .HasForeignKey(r => r.ReceiverId)
+                .WillCascadeOnDelete(false);  // important
+
+            // SkillRequests → Skills
+            modelBuilder.Entity<SkillRequest>()
+                .HasRequired(r => r.Skill)
+                .WithMany()
+                .HasForeignKey(r => r.SkillId)
+                .WillCascadeOnDelete(false);
+        }
+
 
         public static ApplicationDbContext Create()
         {

@@ -63,7 +63,8 @@ namespace SkillBridge.Controllers
                         {
                             UserId = userId,
                             SkillId = skillId,
-                            Status = "Learning"
+                            Status = "Learning",
+                            KnownUpToStage = 0
                         });
                     }
                 }

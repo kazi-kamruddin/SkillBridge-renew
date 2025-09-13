@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title</title>
     @Styles.Render("~/Content/css")
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     @RenderSection("Styles", required: false)
     @Scripts.Render("~/bundles/modernizr")
-
 </head>
 <body>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
@@ -17,16 +17,31 @@
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Explore", "Index", "Explore", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Explore", "Index", "Explore", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                 </ul>
-                 @Html.Partial("_LoginPartial")
+
+                <ul class="navbar-nav">
+                    @Html.Partial("_LoginPartial")
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="@Url.Action("Index", "Notifications")" title="Notifications">
+                                <i class="fas fa-bell"></i>
+                                <span id="notifBadge" class="badge bg-danger position-absolute top-0 start-100 translate-middle" style="display:none;"></span>
+                            </a>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
     </nav>
+
     <div class="container body-content">
         @RenderBody()
         <hr />
@@ -38,5 +53,24 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
+
+    <script>
+        $(document).ready(function () {
+            // Update unread notification count dynamically
+            function updateNotifBadge() {
+                $.get('@Url.Action("GetNotifications", "Notifications")', function (data) {
+                    var badge = $("#notifBadge");
+                    if (data.unreadCount > 0) {
+                        badge.text(data.unreadCount).show();
+                    } else {
+                        badge.hide();
+                    }
+                });
+            }
+
+            updateNotifBadge();
+            setInterval(updateNotifBadge, 10000); // refresh every 10 seconds
+        });
+    </script>
 </body>
 </html>

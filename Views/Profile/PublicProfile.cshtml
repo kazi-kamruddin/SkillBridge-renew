@@ -1,5 +1,5 @@
 @model SkillBridge.Models.PublicProfileViewModel
-
+@using Microsoft.AspNet.Identity
 
 @section Styles {
     <link rel="stylesheet" href="~/Styles/publicProfile.css" />
@@ -11,12 +11,27 @@
 <p>@Model.Bio</p>
 
 <h3>Skills to Teach</h3>
-<ul>
+<ul id="skillsToTeachList">
     @foreach (var skill in Model.SkillsToTeach)
     {
+        var showButton = skill.RequestStatus != "Hidden";
+        var buttonText = "Request";
+        var isDisabled = false;
+
+        if (skill.RequestStatus == "Pending") { buttonText = "Request Sent"; isDisabled = true; }
+        else if (skill.RequestStatus == "Declined") { buttonText = "Request Again"; }
+
         <li>
             @skill.SkillName (Stage: @skill.Stage)
-            <button disabled>Request (coming soon)</button>
+            @if (showButton)
+            {
+                <button class="btn btn-primary requestSkillBtn"
+                        data-userskill-id="@skill.UserSkillId"
+                        data-profile-id="@Model.UserId"
+                        @((isDisabled) ? "disabled=\"disabled\"" : "")>
+                    @buttonText
+                </button>
+            }
         </li>
     }
 </ul>
@@ -28,3 +43,36 @@
         <li>@skill.SkillName (Stage: @skill.Stage)</li>
     }
 </ul>
+
+@section Scripts {
+    <script src="~/bundles/jquery"></script>
+    <script>
+        $(document).ready(function () {
+            $(".requestSkillBtn").click(function () {
+                var $btn = $(this);
+                var userSkillId = $btn.data("userskill-id");
+                var profileId = $btn.data("profile-id");
+
+                if (!confirm("Send a request to learn " + $btn.closest("li").text() + "?")) return;
+
+                $.ajax({
+                    url: '@Url.Action("SendSkillRequest", "Profile")',
+                    type: 'POST',
+                    data: { userSkillId: userSkillId, profileId: profileId },
+                    success: function (res) {
+                        if (res.success) {
+                            $btn.text("Request Sent");
+                            $btn.prop("disabled", true);
+                            alert("Request sent successfully!");
+                        } else {
+                            alert(res.message || "Failed to send request.");
+                        }
+                    },
+                    error: function () {
+                        alert("Error sending request. Try again.");
+                    }
+                });
+            });
+        });
+    </script>
+}

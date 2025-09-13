@@ -172,6 +172,8 @@
     <Compile Include="Controllers\CompleteProfileController.cs" />
     <Compile Include="Controllers\ExploreController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InteractionsController.cs" />
+    <Compile Include="Controllers\NotificationsController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -188,14 +190,29 @@
     <Compile Include="Migrations\202509111827435_AddUserInformationAndUserSkills.Designer.cs">
       <DependentUpon>202509111827435_AddUserInformationAndUserSkills.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509130736499_AddAllInteractionsFeature.cs" />
+    <Compile Include="Migrations\202509130736499_AddAllInteractionsFeature.Designer.cs">
+      <DependentUpon>202509130736499_AddAllInteractionsFeature.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509131107511_AddSkillRequestsTable.cs" />
+    <Compile Include="Migrations\202509131107511_AddSkillRequestsTable.Designer.cs">
+      <DependentUpon>202509131107511_AddSkillRequestsTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509131712157_RenameInteractionColumns.cs" />
+    <Compile Include="Migrations\202509131712157_RenameInteractionColumns.Designer.cs">
+      <DependentUpon>202509131712157_RenameInteractionColumns.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CompleteProfileViewModel.cs" />
     <Compile Include="Models\ExploreViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\InteractionDetailsViewModel.cs" />
+    <Compile Include="Models\InteractionModels.cs" />
     <Compile Include="Models\ProfileModels.cs" />
     <Compile Include="Models\PublicProfileViewModel.cs" />
     <Compile Include="Models\SkillModels.cs" />
+    <Compile Include="Models\SkillRequest.cs" />
     <Compile Include="Models\UserInfoModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -239,6 +256,17 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.8.3.js" />
+    <Content Include="Styles\about.css" />
+    <Content Include="Styles\changePassword.css" />
+    <Content Include="Styles\contacts.css" />
+    <Content Include="Styles\indexCompleteProfile.css" />
+    <Content Include="Styles\indexExplore.css" />
+    <Content Include="Styles\indexHome.css" />
+    <Content Include="Styles\indexProfile.css" />
+    <Content Include="Styles\login.css" />
+    <Content Include="Styles\publicProfile.css" />
+    <Content Include="Styles\register.css" />
+    <Content Include="Styles\resetPassword.css" />
     <Content Include="Styles\updateProfile.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -268,6 +296,10 @@
     <Content Include="Views\Profile\UpdateProfile.cshtml" />
     <Content Include="Views\Explore\Index.cshtml" />
     <Content Include="Views\Profile\PublicProfile.cshtml" />
+    <Content Include="Views\Interactions\Index.cshtml" />
+    <Content Include="Views\Interactions\Details.cshtml" />
+    <Content Include="Views\Interactions\RateInteraction.cshtml" />
+    <Content Include="Views\Notifications\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -308,6 +340,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509111827435_AddUserInformationAndUserSkills.resx">
       <DependentUpon>202509111827435_AddUserInformationAndUserSkills.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509130736499_AddAllInteractionsFeature.resx">
+      <DependentUpon>202509130736499_AddAllInteractionsFeature.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509131107511_AddSkillRequestsTable.resx">
+      <DependentUpon>202509131107511_AddSkillRequestsTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509131712157_RenameInteractionColumns.resx">
+      <DependentUpon>202509131712157_RenameInteractionColumns.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
