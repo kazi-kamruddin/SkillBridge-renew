@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Collections.Generic;
 
 namespace SkillBridge.Controllers
 {
@@ -41,9 +42,7 @@ namespace SkillBridge.Controllers
         public async Task<ActionResult> Index()
         {
             var userId = User.Identity.GetUserId();
-
             var hasPassword = await UserManager.HasPasswordAsync(userId);
-
             var user = await UserManager.FindByIdAsync(userId);
             var userInfo = db.UserInformations.FirstOrDefault(u => u.UserId == userId);
 
@@ -77,7 +76,6 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
-
         // GET: /Profile/UpdateProfile
         public async Task<ActionResult> UpdateProfile()
         {
@@ -109,7 +107,6 @@ namespace SkillBridge.Controllers
 
             return View(model);
         }
-
 
         // POST: /Profile/UpdateProfile
         [HttpPost]
@@ -162,18 +159,11 @@ namespace SkillBridge.Controllers
             }
 
             db.SaveChanges();
-
             return RedirectToAction("Index");
         }
 
-
-
-
         // GET: /Profile/ChangePassword
-        public ActionResult ChangePassword()
-        {
-            return View();
-        }
+        public ActionResult ChangePassword() => View();
 
         // POST: /Profile/ChangePassword
         [HttpPost]
@@ -201,7 +191,7 @@ namespace SkillBridge.Controllers
         }
 
         //////////////////////////////////////////////////////////////////
-
+        // GET: /Profile/PublicProfile
         public ActionResult PublicProfile(string id)
         {
             if (id == null) return HttpNotFound();
@@ -210,11 +200,31 @@ namespace SkillBridge.Controllers
             if (user == null) return HttpNotFound();
 
             var userInfo = db.UserInformations.FirstOrDefault(ui => ui.UserId == id);
+            var currentUserId = User.Identity.GetUserId();
 
             var userSkills = db.UserSkills
                 .Include(us => us.Skill.SkillCategory)
                 .Where(us => us.UserId == id)
                 .ToList();
+
+            var skillsToTeachVm = new List<SkillViewModel>();
+            foreach (var skill in userSkills.Where(us => us.Status == "Teaching"))
+            {
+                var existingRequest = db.SkillRequests
+                    .FirstOrDefault(r => r.SkillId == skill.SkillId &&
+                                         r.RequesterId == currentUserId &&
+                                         r.ReceiverId == id);
+
+                skillsToTeachVm.Add(new SkillViewModel
+                {
+                    SkillId = skill.SkillId,
+                    SkillName = skill.Skill.Name,
+                    Stage = skill.KnownUpToStage ?? 1,
+                    RequestStatus = existingRequest != null
+                                    ? (existingRequest.Status == "Pending" ? "Pending" : "Declined")
+                                    : "None"
+                });
+            }
 
             var model = new PublicProfileViewModel
             {
@@ -223,31 +233,65 @@ namespace SkillBridge.Controllers
                 Profession = userInfo?.Profession ?? "",
                 Location = userInfo?.Location ?? "",
                 Bio = userInfo?.Bio ?? "",
-                SkillsToTeach = userSkills
-                    .Where(us => us.Status == "Teaching")
-                    .Select(us => new SkillViewModel
-                    {
-                        SkillId = us.SkillId,
-                        SkillName = us.Skill.Name,
-                        Stage = us.KnownUpToStage ?? 1
-                    }).ToList(),
+                SkillsToTeach = skillsToTeachVm,
                 SkillsToLearn = userSkills
                     .Where(us => us.Status == "Learning")
                     .Select(us => new SkillViewModel
                     {
                         SkillId = us.SkillId,
                         SkillName = us.Skill.Name,
-                        Stage = us.KnownUpToStage ?? 1
+                        Stage = us.KnownUpToStage ?? 1,
+                        RequestStatus = "None"
                     }).ToList()
             };
 
             return View(model);
         }
 
+        //////////////////////////////////////////////////////////////////
+        // POST: /Profile/SendSkillRequest
+        [HttpPost]
+        public JsonResult SendSkillRequest(int skillId)
+        {
+            var currentUserId = User.Identity.GetUserId();
+            if (currentUserId == null)
+                return Json(new { success = false, message = "You must be logged in." });
 
+            var skill = db.UserSkills.Include("Skill").FirstOrDefault(s => s.SkillId == skillId);
+            if (skill == null)
+                return Json(new { success = false, message = "Skill not found." });
+
+            // Cannot request your own skill
+            if (skill.UserId == currentUserId)
+                return Json(new { success = false, message = "You cannot request your own skill." });
+
+            // Check if request already exists
+            var existingRequest = db.SkillRequests
+                .FirstOrDefault(r => r.SkillId == skillId &&
+                                     r.RequesterId == currentUserId &&
+                                     r.ReceiverId == skill.UserId);
+
+            if (existingRequest != null)
+            {
+                return Json(new { success = false, message = "Request already sent." });
+            }
+
+            // Create new request
+            var request = new SkillRequest
+            {
+                SkillId = skillId,
+                RequesterId = currentUserId,
+                ReceiverId = skill.UserId,
+                Status = "Pending"
+            };
+
+            db.SkillRequests.Add(request);
+            db.SaveChanges();
+
+            return Json(new { success = true });
+        }
 
         //////////////////////////////////////////////////////////////////
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)

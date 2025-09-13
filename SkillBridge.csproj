@@ -194,6 +194,10 @@
     <Compile Include="Migrations\202509130736499_AddAllInteractionsFeature.Designer.cs">
       <DependentUpon>202509130736499_AddAllInteractionsFeature.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509131107511_AddSkillRequestsTable.cs" />
+    <Compile Include="Migrations\202509131107511_AddSkillRequestsTable.Designer.cs">
+      <DependentUpon>202509131107511_AddSkillRequestsTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CompleteProfileViewModel.cs" />
@@ -204,6 +208,7 @@
     <Compile Include="Models\ProfileModels.cs" />
     <Compile Include="Models\PublicProfileViewModel.cs" />
     <Compile Include="Models\SkillModels.cs" />
+    <Compile Include="Models\SkillRequest.cs" />
     <Compile Include="Models\UserInfoModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -290,10 +295,10 @@
     <Content Include="Views\Interactions\Index.cshtml" />
     <Content Include="Views\Interactions\Details.cshtml" />
     <Content Include="Views\Interactions\RateInteraction.cshtml" />
+    <Content Include="Views\Notifications\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Notifications\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />
@@ -334,6 +339,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509130736499_AddAllInteractionsFeature.resx">
       <DependentUpon>202509130736499_AddAllInteractionsFeature.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509131107511_AddSkillRequestsTable.resx">
+      <DependentUpon>202509131107511_AddSkillRequestsTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

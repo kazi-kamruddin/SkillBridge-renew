@@ -33,6 +33,7 @@ namespace SkillBridge.Models
         public DbSet<InteractionSession> InteractionSessions { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<SkillRequest> SkillRequests { get; set; }
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
@@ -75,6 +76,26 @@ namespace SkillBridge.Models
                 .HasRequired(i => i.SkillOffered)
                 .WithMany()
                 .HasForeignKey(i => i.SkillOfferedId)
+                .WillCascadeOnDelete(false);
+
+            // SkillRequests → AspNetUsers
+            modelBuilder.Entity<SkillRequest>()
+                .HasRequired(r => r.Requester)
+                .WithMany()
+                .HasForeignKey(r => r.RequesterId)
+                .WillCascadeOnDelete(false);  // important
+
+            modelBuilder.Entity<SkillRequest>()
+                .HasRequired(r => r.Receiver)
+                .WithMany()
+                .HasForeignKey(r => r.ReceiverId)
+                .WillCascadeOnDelete(false);  // important
+
+            // SkillRequests → Skills
+            modelBuilder.Entity<SkillRequest>()
+                .HasRequired(r => r.Skill)
+                .WithMany()
+                .HasForeignKey(r => r.SkillId)
                 .WillCascadeOnDelete(false);
         }
 
