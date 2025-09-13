@@ -173,6 +173,7 @@
     <Compile Include="Controllers\ExploreController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InteractionsController.cs" />
+    <Compile Include="Controllers\NotificationsController.cs" />
     <Compile Include="Controllers\ProfileController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -198,6 +199,7 @@
     <Compile Include="Models\CompleteProfileViewModel.cs" />
     <Compile Include="Models\ExploreViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\InteractionDetailsViewModel.cs" />
     <Compile Include="Models\InteractionModels.cs" />
     <Compile Include="Models\ProfileModels.cs" />
     <Compile Include="Models\PublicProfileViewModel.cs" />
@@ -285,10 +287,13 @@
     <Content Include="Views\Profile\UpdateProfile.cshtml" />
     <Content Include="Views\Explore\Index.cshtml" />
     <Content Include="Views\Profile\PublicProfile.cshtml" />
+    <Content Include="Views\Interactions\Index.cshtml" />
+    <Content Include="Views\Interactions\Details.cshtml" />
+    <Content Include="Views\Interactions\RateInteraction.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Views\Interactions\" />
+    <Folder Include="Views\Notifications\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

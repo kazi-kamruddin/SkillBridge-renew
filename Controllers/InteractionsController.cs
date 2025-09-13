@@ -15,9 +15,7 @@ namespace SkillBridge.Controllers
             _context = new ApplicationDbContext();
         }
 
-
         ///////////////////////////////////////////////////////////////////////////
-        
 
         // GET: Interactions
         public ActionResult Index()
@@ -32,9 +30,7 @@ namespace SkillBridge.Controllers
             return View(interactions);
         }
 
-
         ///////////////////////////////////////////////////////////////////////////
-        ///
 
         public ActionResult Details(int id)
         {
@@ -68,15 +64,16 @@ namespace SkillBridge.Controllers
             return View(interaction);
         }
 
-
         ///////////////////////////////////////////////////////////////////////////
-
 
         [HttpPost]
         [Authorize]
         public ActionResult CompleteStage(int interactionId, int skillId, int stageNumber, string role)
         {
             var userId = User.Identity.GetUserId();
+
+            var interaction = _context.Interactions.FirstOrDefault(i => i.Id == interactionId);
+            if (interaction == null) return HttpNotFound();
 
             var session = _context.InteractionSessions
                 .FirstOrDefault(s => s.InteractionId == interactionId && s.SkillId == skillId && s.StageNumber == stageNumber);
@@ -99,12 +96,28 @@ namespace SkillBridge.Controllers
             if (role == "Mentor") session.MentorConfirmed = true;
 
             _context.SaveChanges();
+
+            // Trigger notification to the other user
+            var otherUserId = role == "Learner" ? interaction.ReceiverId : interaction.RequesterId;
+            var skill = _context.Skills.FirstOrDefault(s => s.Id == skillId);
+
+            if (skill != null)
+            {
+                var notif = new Notification
+                {
+                    UserId = otherUserId,
+                    Type = "StageCompleted",
+                    ReferenceId = interactionId,
+                    Message = $"{User.Identity.GetUserName()} marked stage {stageNumber} of {skill.Name} as completed."
+                };
+                _context.Notifications.Add(notif);
+                _context.SaveChanges();
+            }
+
             return RedirectToAction("Details", new { id = interactionId });
         }
 
-
         ///////////////////////////////////////////////////////////////////////////
-
 
         [HttpPost]
         [Authorize]
@@ -137,15 +150,23 @@ namespace SkillBridge.Controllers
             interaction.Status = "Completed";
             _context.SaveChanges();
 
-            // Redirect to a Rating page (to be created)
+            // Notify the other user
+            var otherUserId = interaction.RequesterId == userId ? interaction.ReceiverId : interaction.RequesterId;
+            var notif = new Notification
+            {
+                UserId = otherUserId,
+                Type = "InteractionCompleted",
+                ReferenceId = interaction.Id,
+                Message = $"{User.Identity.GetUserName()} completed the interaction. Please rate them."
+            };
+            _context.Notifications.Add(notif);
+            _context.SaveChanges();
+
             return RedirectToAction("RateInteraction", new { id = id });
         }
 
-
         ///////////////////////////////////////////////////////////////////////////
 
-
-        // GET: Show rating form
         [Authorize]
         public ActionResult RateInteraction(int id)
         {
@@ -158,7 +179,6 @@ namespace SkillBridge.Controllers
             if (interaction == null)
                 return HttpNotFound();
 
-            // Determine the "other user" to rate
             var otherUserName = interaction.RequesterId == userId
                                 ? interaction.Receiver.UserName
                                 : interaction.Requester.UserName;
@@ -172,11 +192,8 @@ namespace SkillBridge.Controllers
             return View(vm);
         }
 
-
         ///////////////////////////////////////////////////////////////////////////
-        
 
-        // POST: Submit rating
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
@@ -212,9 +229,7 @@ namespace SkillBridge.Controllers
             return RedirectToAction("Index");
         }
 
-
         ///////////////////////////////////////////////////////////////////////////
-        
 
         protected override void Dispose(bool disposing)
         {

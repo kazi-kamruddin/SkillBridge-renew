@@ -1,0 +1,45 @@
+@model List<SkillBridge.Models.Notification>
+@{
+    ViewBag.Title = "Notifications";
+}
+
+<h2>Notifications</h2>
+
+@if (!Model.Any())
+{
+    <p>No notifications.</p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var n in Model)
+        {
+            <li class="list-group-item @(n.IsRead ? "" : "list-group-item-info")">
+                @n.Message
+                <small class="text-muted float-right">@n.CreatedAt.ToLocalTime().ToString("g")</small>
+                @if (!n.IsRead)
+                {
+                    <button class="btn btn-sm btn-link mark-read" data-id="@n.Id">Mark as Read</button>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@section scripts {
+    <script>
+    $(document).ready(function () {
+        $(".mark-read").click(function () {
+            var btn = $(this);
+            var id = btn.data("id");
+
+            $.post("/Notifications/MarkAsRead/" + id, function (res) {
+                if (res.success) {
+                    btn.closest("li").removeClass("list-group-item-info");
+                    btn.remove();
+                }
+            });
+        });
+    });
+    </script>
+}
