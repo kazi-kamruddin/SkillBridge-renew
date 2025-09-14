@@ -2,239 +2,180 @@
 using System.Web.Mvc;
 using SkillBridge.Models;
 using Microsoft.AspNet.Identity;
+using System.Data.Entity;
+using System.Collections.Generic;
 
 namespace SkillBridge.Controllers
 {
     [Authorize]
     public class InteractionsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ApplicationDbContext db;
 
         public InteractionsController()
         {
-            _context = new ApplicationDbContext();
+            db = new ApplicationDbContext();
         }
 
-        /////////////////////////////////////////////////////////////////////////////
+        // Interaction Index Page
+        public ActionResult Index()
+        {
+            var userId = User.Identity.GetUserId();
+            var interactions = db.Interactions
+                .Where(i => i.User1Id == userId || i.User2Id == userId)
+                .Where(i => i.Status != "Completed")
+                .Include(i => i.User1)
+                .Include(i => i.User2)
+                .Include(i => i.SkillFromRequester)
+                .Include(i => i.SkillFromTeacher)
+                .ToList();
 
-        //// GET: Interactions
-        //public ActionResult Index()
-        //{
-        //    var userId = User.Identity.GetUserId();
+            // Map to ViewModel
+            var model = interactions.Select(i => new InteractionIndexViewModel
+            {
+                InteractionId = i.Id,
+                Status = i.Status,
+                OtherUserName = i.User1Id == userId ? i.User2.UserName : i.User1.UserName,
+                SkillYouLearn = i.User1Id == userId ? i.SkillFromTeacher.Name : i.SkillFromRequester.Name,
+                SkillYouTeach = i.User1Id == userId ? i.SkillFromRequester.Name : i.SkillFromTeacher.Name
+            }).ToList();
 
-        //    var interactions = _context.Interactions
-        //        .Where(i => i.RequesterId == userId || i.ReceiverId == userId)
-        //        .OrderByDescending(i => i.CreatedAt)
-        //        .ToList();
+            return View(model);
+        }
 
-        //    return View(interactions);
-        //}
+        // Interaction Sessions Page
+        public ActionResult Sessions(int id)
+        {
+            var interaction = db.Interactions
+                .Include(i => i.Sessions.Select(s => s.Skill))
+                .Include(i => i.SkillFromRequester.SkillStages)
+                .Include(i => i.SkillFromTeacher.SkillStages)
+                .FirstOrDefault(i => i.Id == id);
 
-        /////////////////////////////////////////////////////////////////////////////
+            if (interaction == null) return HttpNotFound();
 
-        //public ActionResult Details(int id)
-        //{
-        //    var userId = User.Identity.GetUserId();
+            var model = new InteractionSessionsViewModel
+            {
+                InteractionId = interaction.Id,
+                UserId = User.Identity.GetUserId(),
+                SkillBlocks = BuildSkillBlocks(interaction)
+            };
 
-        //    var interaction = _context.Interactions
-        //        .Where(i => i.Id == id && (i.RequesterId == userId || i.ReceiverId == userId))
-        //        .Select(i => new InteractionDetailsViewModel
-        //        {
-        //            Id = i.Id,
-        //            Status = i.Status,
-        //            SkillRequested = new InteractionSkillViewModel
-        //            {
-        //                Id = i.SkillRequested.Id,
-        //                Name = i.SkillRequested.Name,
-        //                Stages = i.SkillRequested.SkillStages.OrderBy(s => s.StageNumber).ToList()
-        //            },
-        //            SkillOffered = new InteractionSkillViewModel
-        //            {
-        //                Id = i.SkillOffered.Id,
-        //                Name = i.SkillOffered.Name,
-        //                Stages = i.SkillOffered.SkillStages.OrderBy(s => s.StageNumber).ToList()
-        //            },
-        //            Sessions = i.Sessions.ToList()
-        //        })
-        //        .FirstOrDefault();
+            return View(model);
+        }
 
-        //    if (interaction == null)
-        //        return HttpNotFound();
+        [HttpPost]
+        public ActionResult MarkStageDone(int stageNumber, int interactionId)
+        {
+            var userId = User.Identity.GetUserId();
+            var session = db.InteractionSessions
+                .FirstOrDefault(s => s.InteractionId == interactionId && s.StageNumber == stageNumber);
 
-        //    return View(interaction);
-        //}
+            if (session == null) return HttpNotFound();
 
-        /////////////////////////////////////////////////////////////////////////////
+            if (session.Interaction.User1Id == userId)
+                session.User1Confirmed = true;
+            else if (session.Interaction.User2Id == userId)
+                session.User2Confirmed = true;
 
-        //[HttpPost]
-        //[Authorize]
-        //public ActionResult CompleteStage(int interactionId, int skillId, int stageNumber, string role)
-        //{
-        //    var userId = User.Identity.GetUserId();
+            db.SaveChanges();
+            return Json(new { success = true });
+        }
 
-        //    var interaction = _context.Interactions.FirstOrDefault(i => i.Id == interactionId);
-        //    if (interaction == null) return HttpNotFound();
+        // End Interaction
+        public ActionResult EndInteraction(int id)
+        {
+            var interaction = db.Interactions
+                .Include(i => i.Sessions)
+                .FirstOrDefault(i => i.Id == id);
 
-        //    var session = _context.InteractionSessions
-        //        .FirstOrDefault(s => s.InteractionId == interactionId && s.SkillId == skillId && s.StageNumber == stageNumber);
+            if (interaction == null) return HttpNotFound();
 
-        //    if (session == null)
-        //    {
-        //        session = new InteractionSession
-        //        {
-        //            InteractionId = interactionId,
-        //            SkillId = skillId,
-        //            StageNumber = stageNumber,
-        //            LearnerConfirmed = false,
-        //            MentorConfirmed = false,
-        //            Status = "Pending"
-        //        };
-        //        _context.InteractionSessions.Add(session);
-        //    }
+            string userId = User.Identity.GetUserId();
+            string learningUserId = interaction.User1Id == userId ? interaction.User2Id : interaction.User1Id;
 
-        //    if (role == "Learner") session.LearnerConfirmed = true;
-        //    if (role == "Mentor") session.MentorConfirmed = true;
+            int skillId = interaction.User1Id == learningUserId ? interaction.SkillFromRequesterId : interaction.SkillFromTeacherId;
 
-        //    _context.SaveChanges();
+            // Update learning user's skill
+            var learningUserSkill = db.UserSkills.FirstOrDefault(us => us.UserId == learningUserId && us.SkillId == skillId);
+            if (learningUserSkill != null)
+            {
+                learningUserSkill.Status = "Teaching";
+                learningUserSkill.KnownUpToStage = MaxStageCompleted(interaction, skillId);
+            }
 
-        //    // Trigger notification to the other user
-        //    var otherUserId = role == "Learner" ? interaction.ReceiverId : interaction.RequesterId;
-        //    var skill = _context.Skills.FirstOrDefault(s => s.Id == skillId);
+            interaction.Status = "Completed";
+            db.SaveChanges();
 
-        //    if (skill != null)
-        //    {
-        //        var notif = new Notification
-        //        {
-        //            UserId = otherUserId,
-        //            Type = "StageCompleted",
-        //            ReferenceId = interactionId,
-        //            Message = $"{User.Identity.GetUserName()} marked stage {stageNumber} of {skill.Name} as completed."
-        //        };
-        //        _context.Notifications.Add(notif);
-        //        _context.SaveChanges();
-        //    }
+            CreateFeedbackNotification(interaction);
 
-        //    return RedirectToAction("Details", new { id = interactionId });
-        //}
+            return RedirectToAction("Index");
+        }
 
-        /////////////////////////////////////////////////////////////////////////////
+        // Helper Methods
+        private List<SkillStageBlock> BuildSkillBlocks(Interaction interaction)
+        {
+            var userId = User.Identity.GetUserId();
+            var blocks = new List<SkillStageBlock>();
 
-        //[HttpPost]
-        //[Authorize]
-        //public ActionResult CompleteInteraction(int id)
-        //{
-        //    var userId = User.Identity.GetUserId();
+            foreach (var session in interaction.Sessions)
+            {
+                bool confirmed = (session.Interaction.User1Id == userId && session.User1Confirmed) ||
+                                 (session.Interaction.User2Id == userId && session.User2Confirmed);
 
-        //    var interaction = _context.Interactions
-        //        .Where(i => i.Id == id && (i.RequesterId == userId || i.ReceiverId == userId))
-        //        .FirstOrDefault();
+                string status = "Red";
+                if (session.User1Confirmed || session.User2Confirmed) status = "Yellow";
+                if (session.User1Confirmed && session.User2Confirmed) status = "Green";
 
-        //    if (interaction == null)
-        //        return HttpNotFound();
+                blocks.Add(new SkillStageBlock
+                {
+                    StageNumber = session.StageNumber,
+                    Description = session.Skill.Description,
+                    Status = status,
+                    UserConfirmed = confirmed
+                });
+            }
 
-        //    // Check if all stages are confirmed
-        //    var allLearnerConfirmed = _context.InteractionSessions
-        //        .Where(s => s.InteractionId == id && s.SkillId == interaction.SkillRequestedId)
-        //        .All(s => s.LearnerConfirmed);
+            return blocks.OrderBy(b => b.StageNumber).ToList();
+        }
 
-        //    var allMentorConfirmed = _context.InteractionSessions
-        //        .Where(s => s.InteractionId == id && s.SkillId == interaction.SkillOfferedId)
-        //        .All(s => s.MentorConfirmed);
+        private int MaxStageCompleted(Interaction interaction, int skillId)
+        {
+            var sessions = interaction.Sessions.Where(s => s.SkillId == skillId).ToList();
+            if (!sessions.Any()) return 0;
 
-        //    if (!allLearnerConfirmed || !allMentorConfirmed)
-        //    {
-        //        TempData["Error"] = "You cannot complete this interaction until all stages are confirmed by both users.";
-        //        return RedirectToAction("Details", new { id = id });
-        //    }
+            return sessions
+                .Where(s => s.User1Confirmed && s.User2Confirmed)
+                .Select(s => s.StageNumber)
+                .DefaultIfEmpty(0)
+                .Max();
+        }
 
-        //    interaction.Status = "Completed";
-        //    _context.SaveChanges();
+        private void CreateFeedbackNotification(Interaction interaction)
+        {
+            var notif1 = new Notification
+            {
+                UserId = interaction.User1Id,
+                Type = "Feedback",
+                Message = $"Rate your experience learning {interaction.SkillFromTeacher.Name} from {interaction.User2.UserName}"
+            };
 
-        //    // Notify the other user
-        //    var otherUserId = interaction.RequesterId == userId ? interaction.ReceiverId : interaction.RequesterId;
-        //    var notif = new Notification
-        //    {
-        //        UserId = otherUserId,
-        //        Type = "InteractionCompleted",
-        //        ReferenceId = interaction.Id,
-        //        Message = $"{User.Identity.GetUserName()} completed the interaction. Please rate them."
-        //    };
-        //    _context.Notifications.Add(notif);
-        //    _context.SaveChanges();
+            var notif2 = new Notification
+            {
+                UserId = interaction.User2Id,
+                Type = "Feedback",
+                Message = $"Rate your experience learning {interaction.SkillFromRequester.Name} from {interaction.User1.UserName}"
+            };
 
-        //    return RedirectToAction("RateInteraction", new { id = id });
-        //}
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        //[Authorize]
-        //public ActionResult RateInteraction(int id)
-        //{
-        //    var userId = User.Identity.GetUserId();
-
-        //    var interaction = _context.Interactions
-        //        .Where(i => i.Id == id && (i.RequesterId == userId || i.ReceiverId == userId))
-        //        .FirstOrDefault();
-
-        //    if (interaction == null)
-        //        return HttpNotFound();
-
-        //    var otherUserName = interaction.RequesterId == userId
-        //                        ? interaction.Receiver.UserName
-        //                        : interaction.Requester.UserName;
-
-        //    var vm = new InteractionRatingViewModel
-        //    {
-        //        InteractionId = interaction.Id,
-        //        OtherUserName = otherUserName
-        //    };
-
-        //    return View(vm);
-        //}
-
-        /////////////////////////////////////////////////////////////////////////////
-
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //[Authorize]
-        //public ActionResult RateInteraction(InteractionRatingViewModel vm)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return View(vm);
-
-        //    var userId = User.Identity.GetUserId();
-
-        //    var interaction = _context.Interactions
-        //        .Where(i => i.Id == vm.InteractionId && (i.RequesterId == userId || i.ReceiverId == userId))
-        //        .FirstOrDefault();
-
-        //    if (interaction == null)
-        //        return HttpNotFound();
-
-        //    var toUserId = interaction.RequesterId == userId ? interaction.ReceiverId : interaction.RequesterId;
-
-        //    var rating = new Rating
-        //    {
-        //        InteractionId = vm.InteractionId,
-        //        FromUserId = userId,
-        //        ToUserId = toUserId,
-        //        RatingValue = vm.RatingValue,
-        //        Comment = vm.Comment
-        //    };
-
-        //    _context.Ratings.Add(rating);
-        //    _context.SaveChanges();
-
-        //    TempData["Success"] = "Rating submitted successfully!";
-        //    return RedirectToAction("Index");
-        //}
-
-        /////////////////////////////////////////////////////////////////////////////
+            db.Notifications.Add(notif1);
+            db.Notifications.Add(notif2);
+            db.SaveChanges();
+        }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-                _context.Dispose();
+                db.Dispose();
             base.Dispose(disposing);
         }
     }

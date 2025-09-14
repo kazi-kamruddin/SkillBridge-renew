@@ -1,0 +1,24 @@
+@model SkillBridge.Models.InteractionSessionsViewModel
+<div class="skill-blocks">
+    @foreach (var stage in Model.SkillBlocks)
+    {
+        <div class="stage @stage.Status" data-stage="@stage.StageNumber">
+            <span>@stage.StageNumber: @stage.Description</span>
+            @if (!stage.UserConfirmed)
+            {
+                <button class="mark-done" data-stage="@stage.StageNumber">Mark Done</button>
+            }
+        </div>
+    }
+</div>
+
+<script>
+    $(".mark-done").click(function(){
+        var stageNumber = $(this).data("stage");
+        $.post("@Url.Action("MarkStageDone","Interactions")",
+            { stageNumber: stageNumber, interactionId: @Model.InteractionId },
+            function(response){
+                location.reload();
+        });
+    });
+</script>

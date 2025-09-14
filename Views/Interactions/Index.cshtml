@@ -1,8 +1,11 @@
-@using Microsoft.AspNet.Identity
+@model List<SkillBridge.Models.InteractionIndexViewModel>
 
-@model List<SkillBridge.Models.Interaction>
-@{
-    ViewBag.Title = "Your Interactions";
+@foreach (var interaction in Model)
+{
+    <div class="card">
+        <h4>@interaction.OtherUserName</h4>
+        <p>Teaching: @interaction.SkillYouTeach</p>
+        <p>Learning: @interaction.SkillYouLearn</p>
+        <a href="@Url.Action("Sessions", "Interactions", new { id = interaction.InteractionId })">View Stages</a>
+    </div>
 }
-
-<h2>Your Interactions</h2>

@@ -3,35 +3,28 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SkillBridge.Models
 {
-    public class InteractionDetailsViewModel
-    {
-        public int Id { get; set; }
-        public string Status { get; set; }
-
-        public InteractionSkillViewModel SkillRequested { get; set; }
-        public InteractionSkillViewModel SkillOffered { get; set; }
-
-        public List<InteractionSession> Sessions { get; set; }
-    }
-
-    public class InteractionSkillViewModel
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public List<SkillStage> Stages { get; set; }
-    }
-
-    public class InteractionRatingViewModel
+    public class InteractionIndexViewModel
     {
         public int InteractionId { get; set; }
         public string OtherUserName { get; set; }
-
-        [Required]
-        [Range(1, 10)]
-        [Display(Name = "Rating (1-10)")]
-        public int RatingValue { get; set; }
-
-        [Display(Name = "Comment (optional)")]
-        public string Comment { get; set; }
+        public string SkillYouTeach { get; set; }
+        public string SkillYouLearn { get; set; }
+        public string Status { get; set; }
     }
+
+    public class SkillStageBlock
+    {
+        public int StageNumber { get; set; }
+        public string Description { get; set; }
+        public string Status { get; set; } // Red, Yellow, Green
+        public bool UserConfirmed { get; set; }
+    }
+
+    public class InteractionSessionsViewModel
+    {
+        public int InteractionId { get; set; }
+        public string UserId { get; set; }
+        public List<SkillStageBlock> SkillBlocks { get; set; }
+    }
+
 }
