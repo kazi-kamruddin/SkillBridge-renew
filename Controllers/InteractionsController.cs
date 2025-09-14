@@ -17,6 +17,9 @@ namespace SkillBridge.Controllers
             db = new ApplicationDbContext();
         }
 
+        
+        ////////////////////////////////////////////////////////////////////////////
+        
         // Interaction Index Page
         public ActionResult Index()
         {
@@ -43,7 +46,11 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
+
+        ////////////////////////////////////////////////////////////////////////////
         // Interaction Sessions Page
+
+
         public ActionResult Sessions(int id)
         {
             var interaction = db.Interactions
@@ -64,25 +71,64 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
+
+
         [HttpPost]
         public ActionResult MarkStageDone(int stageNumber, int interactionId)
         {
             var userId = User.Identity.GetUserId();
             var session = db.InteractionSessions
+                .Include(s => s.Interaction)
                 .FirstOrDefault(s => s.InteractionId == interactionId && s.StageNumber == stageNumber);
 
             if (session == null) return HttpNotFound();
+
+            bool stageWasAlreadyConfirmed = session.User1Confirmed && session.User2Confirmed;
 
             if (session.Interaction.User1Id == userId)
                 session.User1Confirmed = true;
             else if (session.Interaction.User2Id == userId)
                 session.User2Confirmed = true;
 
+            // If both confirmed, mark session as confirmed
+            if (session.User1Confirmed && session.User2Confirmed)
+            {
+                session.Status = "Confirmed";
+
+                // Create notifications for both users
+                var notif1 = new Notification
+                {
+                    UserId = session.Interaction.User1Id,
+                    Type = "Info",
+                    Message = $"Stage {session.StageNumber} of {session.Skill.Name} completed by {session.Interaction.User2.UserName}"
+                };
+                var notif2 = new Notification
+                {
+                    UserId = session.Interaction.User2Id,
+                    Type = "Info",
+                    Message = $"Stage {session.StageNumber} of {session.Skill.Name} completed by {session.Interaction.User1.UserName}"
+                };
+                db.Notifications.Add(notif1);
+                db.Notifications.Add(notif2);
+            }
+
             db.SaveChanges();
-            return Json(new { success = true });
+
+            // Return updated status to client
+            return Json(new
+            {
+                success = true,
+                status = session.Status
+            });
         }
 
+
+        ////////////////////////////////////////////////////////////////////////////
         // End Interaction
+        
         public ActionResult EndInteraction(int id)
         {
             var interaction = db.Interactions
@@ -112,7 +158,73 @@ namespace SkillBridge.Controllers
             return RedirectToAction("Index");
         }
 
+
+        ////////////////////////////////////////////////////////////////////////////
+
+
+        // Show rating page
+        public ActionResult RateInteraction(int interactionId)
+        {
+            var userId = User.Identity.GetUserId();
+            var interaction = db.Interactions
+                .Include(i => i.SkillFromRequester)
+                .Include(i => i.SkillFromTeacher)
+                .Include(i => i.User1)
+                .Include(i => i.User2)
+                .FirstOrDefault(i => i.Id == interactionId && i.Status == "Completed");
+
+            if (interaction == null) return HttpNotFound();
+
+            // Determine which skill the current user learned
+            string skillName = interaction.User1Id == userId ? interaction.SkillFromTeacher.Name : interaction.SkillFromRequester.Name;
+            string fromUserName = interaction.User1Id == userId ? interaction.User2.UserName : interaction.User1.UserName;
+            string toUserId = userId;
+
+            var model = new InteractionRatingViewModel
+            {
+                InteractionId = interaction.Id,
+                SkillName = skillName,
+                FromUserName = fromUserName,
+                ToUserId = toUserId
+            };
+
+            return View(model);
+        }
+
+        // Submit rating via AJAX
+        [HttpPost]
+        public ActionResult SubmitRating(InteractionRatingViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors) });
+
+            var rating = new Rating
+            {
+                InteractionId = model.InteractionId,
+                FromUserId = model.ToUserId,
+                ToUserId = db.Interactions.Find(model.InteractionId).User1Id == model.ToUserId
+                           ? db.Interactions.Find(model.InteractionId).User2Id
+                           : db.Interactions.Find(model.InteractionId).User1Id,
+                RatingValue = model.RatingValue,
+                Comment = model.Comment
+            };
+
+            db.Ratings.Add(rating);
+
+            // Remove the feedback notification
+            var notif = db.Notifications.FirstOrDefault(n => n.UserId == model.ToUserId && n.Type == "Feedback" && n.ReferenceId == model.InteractionId);
+            if (notif != null) db.Notifications.Remove(notif);
+
+            db.SaveChanges();
+
+            return Json(new { success = true });
+        }
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // Helper Methods
+
         private List<SkillStageBlock> BuildSkillBlocks(Interaction interaction)
         {
             var userId = User.Identity.GetUserId();
@@ -139,6 +251,8 @@ namespace SkillBridge.Controllers
             return blocks.OrderBy(b => b.StageNumber).ToList();
         }
 
+
+        ////////////////////////////////////////////////////////////////////////////
         private int MaxStageCompleted(Interaction interaction, int skillId)
         {
             var sessions = interaction.Sessions.Where(s => s.SkillId == skillId).ToList();
@@ -150,6 +264,8 @@ namespace SkillBridge.Controllers
                 .DefaultIfEmpty(0)
                 .Max();
         }
+
+        ////////////////////////////////////////////////////////////////////////////
 
         private void CreateFeedbackNotification(Interaction interaction)
         {
@@ -171,6 +287,12 @@ namespace SkillBridge.Controllers
             db.Notifications.Add(notif2);
             db.SaveChanges();
         }
+
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
 
         protected override void Dispose(bool disposing)
         {

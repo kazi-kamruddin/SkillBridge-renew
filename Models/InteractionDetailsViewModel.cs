@@ -27,4 +27,19 @@ namespace SkillBridge.Models
         public List<SkillStageBlock> SkillBlocks { get; set; }
     }
 
+    public class InteractionRatingViewModel
+    {
+        public int InteractionId { get; set; }
+        public string SkillName { get; set; }
+        public string FromUserName { get; set; } 
+        public string ToUserId { get; set; }     
+
+        [Required]
+        [Range(1, 10, ErrorMessage = "Rating must be between 1 and 10")]
+        public int RatingValue { get; set; }
+
+        [StringLength(250)]
+        public string Comment { get; set; }
+    }
+
 }
