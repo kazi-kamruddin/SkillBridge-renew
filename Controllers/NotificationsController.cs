@@ -141,43 +141,51 @@ namespace SkillBridge.Controllers
         {
             var userId = User.Identity.GetUserId();
             var notif = _context.Notifications.FirstOrDefault(n => n.Id == notificationId && n.UserId == userId);
-            if (notif == null || notif.Type != "SkillRequest") return Json(new { success = false });
+            if (notif == null || notif.Type != "SkillRequest")
+                return Json(new { success = false });
 
             var skillRequest = _context.SkillRequests
-                .Include(r => r.Skill) // include skill for name
-                .Include(r => r.Requester) // include requester for name
+                .Include(r => r.Skill)      // include skill for name
+                .Include(r => r.Requester)  // include requester for name
                 .FirstOrDefault(r => r.Id == notif.ReferenceId && r.Status == "Pending");
-            if (skillRequest == null) return Json(new { success = false });
 
-            // Create the interaction
+            if (skillRequest == null)
+                return Json(new { success = false });
+
+            // 1. Create the interaction
             var interaction = new Interaction
             {
-                User1Id = userId, // the current user (receiver)
-                User2Id = skillRequest.RequesterId, // the requester
-                SkillFromTeacherId = skillRequest.SkillId, // the skill requester can teach
-                SkillFromRequesterId = skillId, // the skill current user wants to learn
+                User1Id = userId,                      // the current user (receiver)
+                User2Id = skillRequest.RequesterId,    // the requester
+                SkillFromTeacherId = skillRequest.SkillId,  // skill requester can teach
+                SkillFromRequesterId = skillId,        // skill current user wants to learn
                 Status = "Ongoing",
                 CreatedAt = DateTime.Now
             };
             _context.Interactions.Add(interaction);
-            _context.SaveChanges(); // Save first to generate Interaction.Id
+            _context.SaveChanges(); // Save to get interaction.Id
 
             // -------------------------------
-            // Initialize InteractionSessions for both skills
+            // 2. Initialize InteractionSessions based on each user's teaching capability
             // -------------------------------
 
-            // Skill the requester teaches (User2 teaches)
-            var teacherSkillStages = _context.SkillStages
-                .Where(ss => ss.SkillId == skillRequest.SkillId)
+            // Get max stage that requester (User2) can teach
+            var requesterSkill = _context.UserSkills
+                .FirstOrDefault(us => us.UserId == interaction.User2Id && us.SkillId == interaction.SkillFromRequesterId);
+
+            int maxRequesterStage = requesterSkill?.KnownUpToStage ?? 0;
+
+            var requesterStages = _context.SkillStages
+                .Where(ss => ss.SkillId == interaction.SkillFromRequesterId && ss.StageNumber <= maxRequesterStage)
                 .OrderBy(ss => ss.StageNumber)
                 .ToList();
 
-            foreach (var stage in teacherSkillStages)
+            foreach (var stage in requesterStages)
             {
                 _context.InteractionSessions.Add(new InteractionSession
                 {
                     InteractionId = interaction.Id,
-                    SkillId = skillRequest.SkillId,
+                    SkillId = stage.SkillId,
                     StageNumber = stage.StageNumber,
                     Status = "Pending",
                     User1Confirmed = false,
@@ -185,18 +193,23 @@ namespace SkillBridge.Controllers
                 });
             }
 
-            // Skill the current user teaches (User1 teaches)
-            var requesterSkillStages = _context.SkillStages
-                .Where(ss => ss.SkillId == skillId)
+            // Get max stage that receiver (User1) can teach
+            var teacherSkill = _context.UserSkills
+                .FirstOrDefault(us => us.UserId == interaction.User1Id && us.SkillId == interaction.SkillFromTeacherId);
+
+            int maxTeacherStage = teacherSkill?.KnownUpToStage ?? 0;
+
+            var teacherStages = _context.SkillStages
+                .Where(ss => ss.SkillId == interaction.SkillFromTeacherId && ss.StageNumber <= maxTeacherStage)
                 .OrderBy(ss => ss.StageNumber)
                 .ToList();
 
-            foreach (var stage in requesterSkillStages)
+            foreach (var stage in teacherStages)
             {
                 _context.InteractionSessions.Add(new InteractionSession
                 {
                     InteractionId = interaction.Id,
-                    SkillId = skillId,
+                    SkillId = stage.SkillId,
                     StageNumber = stage.StageNumber,
                     Status = "Pending",
                     User1Confirmed = false,
@@ -204,15 +217,15 @@ namespace SkillBridge.Controllers
                 });
             }
 
-            // Update the skill request status
+            // -------------------------------
+            // 3. Update skill request and notifications
+            // -------------------------------
             skillRequest.Status = "Accepted";
 
-            // Update the notification for the receiver
             notif.Type = "Info";
             notif.Message = $"You accepted the skill request for <b>{skillRequest.Skill.Name}</b> from {skillRequest.Requester.UserName}.";
             notif.IsRead = true;
 
-            // Add notification for the requester
             _context.Notifications.Add(new Notification
             {
                 UserId = skillRequest.RequesterId,
@@ -226,6 +239,7 @@ namespace SkillBridge.Controllers
 
             return Json(new { success = true });
         }
+
 
 
         [HttpGet]
