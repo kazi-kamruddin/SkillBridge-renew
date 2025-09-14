@@ -51,28 +51,33 @@
         </footer>
     </div>
 
+    <!-- jQuery from bundle (or CDN fallback if you want) -->
     @Scripts.Render("~/bundles/jquery")
+
+    <!-- Bootstrap depends on jQuery, so must come after -->
     @Scripts.Render("~/bundles/bootstrap")
+
+    <!-- Optional section for page-specific scripts -->
     @RenderSection("scripts", required: false)
 
+    <!-- Inline scripts that depend on jQuery -->
     <script>
-        $(document).ready(function () {
-            function updateNotifBadge() {
-                $.get('@Url.Action("GetNotifications", "Notifications")', function (data) {
-                    var badge = $("#notifBadge");
-                    if (data.unreadCount > 0) {
-                        badge.text(data.unreadCount).show();
-                    } else {
-                        badge.hide();
-                    }
-                });
-            }
+    $(function () { // shorthand for $(document).ready
+        function updateNotifBadge() {
+            $.get('@Url.Action("GetNotifications", "Notifications")', function (data) {
+                var badge = $("#notifBadge");
+                if (data.unreadCount > 0) {
+                    badge.text(data.unreadCount).show();
+                } else {
+                    badge.hide();
+                }
+            });
+        }
 
-            // initial load
-            updateNotifBadge();
-            // poll every 5 seconds
-            setInterval(updateNotifBadge, 5000);
-        });
+        // Initial call + periodic refresh
+        updateNotifBadge();
+        setInterval(updateNotifBadge, 5000);
+    });
     </script>
 </body>
 </html>

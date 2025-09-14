@@ -75,49 +75,44 @@ namespace SkillBridge.Controllers
 
         ////////////////////////////////////////////////////////////////////////////
 
-
         [HttpPost]
-        public ActionResult MarkStageDone(int stageNumber, int interactionId)
+        public ActionResult MarkStageDone(int stageNumber, int interactionId, int skillId)
         {
             var userId = User.Identity.GetUserId();
             var session = db.InteractionSessions
                 .Include(s => s.Interaction)
-                .FirstOrDefault(s => s.InteractionId == interactionId && s.StageNumber == stageNumber);
+                .Include(s => s.Skill)
+                .FirstOrDefault(s => s.InteractionId == interactionId
+                                     && s.SkillId == skillId
+                                     && s.StageNumber == stageNumber);
 
             if (session == null) return HttpNotFound();
-
-            bool stageWasAlreadyConfirmed = session.User1Confirmed && session.User2Confirmed;
 
             if (session.Interaction.User1Id == userId)
                 session.User1Confirmed = true;
             else if (session.Interaction.User2Id == userId)
                 session.User2Confirmed = true;
 
-            // If both confirmed, mark session as confirmed
             if (session.User1Confirmed && session.User2Confirmed)
             {
                 session.Status = "Confirmed";
 
-                // Create notifications for both users
-                var notif1 = new Notification
+                db.Notifications.Add(new Notification
                 {
                     UserId = session.Interaction.User1Id,
                     Type = "Info",
-                    Message = $"Stage {session.StageNumber} of {session.Skill.Name} completed by {session.Interaction.User2.UserName}"
-                };
-                var notif2 = new Notification
+                    Message = $"Stage {session.StageNumber} of {session.Skill.Name} completed!"
+                });
+                db.Notifications.Add(new Notification
                 {
                     UserId = session.Interaction.User2Id,
                     Type = "Info",
-                    Message = $"Stage {session.StageNumber} of {session.Skill.Name} completed by {session.Interaction.User1.UserName}"
-                };
-                db.Notifications.Add(notif1);
-                db.Notifications.Add(notif2);
+                    Message = $"Stage {session.StageNumber} of {session.Skill.Name} completed!"
+                });
             }
 
             db.SaveChanges();
 
-            // Return updated status to client
             return Json(new
             {
                 success = true,
@@ -126,9 +121,10 @@ namespace SkillBridge.Controllers
         }
 
 
+
         ////////////////////////////////////////////////////////////////////////////
         // End Interaction
-        
+
         public ActionResult EndInteraction(int id)
         {
             var interaction = db.Interactions
@@ -230,26 +226,59 @@ namespace SkillBridge.Controllers
             var userId = User.Identity.GetUserId();
             var blocks = new List<SkillStageBlock>();
 
-            foreach (var session in interaction.Sessions)
+            // Group sessions by Skill
+            var sessionsBySkill = interaction.Sessions
+                .OrderBy(s => s.StageNumber)
+                .GroupBy(s => s.SkillId);
+
+            foreach (var skillGroup in sessionsBySkill)
             {
-                bool confirmed = (session.Interaction.User1Id == userId && session.User1Confirmed) ||
-                                 (session.Interaction.User2Id == userId && session.User2Confirmed);
-
-                string status = "Red";
-                if (session.User1Confirmed || session.User2Confirmed) status = "Yellow";
-                if (session.User1Confirmed && session.User2Confirmed) status = "Green";
-
-                blocks.Add(new SkillStageBlock
+                bool nextStagePending = true; // Only first pending stage is yellow
+                foreach (var session in skillGroup)
                 {
-                    StageNumber = session.StageNumber,
-                    Description = session.Skill.Description,
-                    Status = status,
-                    UserConfirmed = confirmed
-                });
+                    var stageEntity = db.SkillStages
+                        .FirstOrDefault(st => st.SkillId == session.SkillId && st.StageNumber == session.StageNumber);
+
+                    string description = stageEntity != null ? stageEntity.Description : "(no description)";
+
+                    bool confirmed = (session.Interaction.User1Id == userId && session.User1Confirmed) ||
+                                     (session.Interaction.User2Id == userId && session.User2Confirmed);
+
+                    string status;
+                    bool isLocked = false;
+
+                    if (session.User1Confirmed && session.User2Confirmed)
+                    {
+                        status = "Green";
+                        nextStagePending = true; // unlock next stage
+                    }
+                    else if (nextStagePending)
+                    {
+                        status = "Yellow";
+                        nextStagePending = false; // only first pending stage is yellow
+                    }
+                    else
+                    {
+                        status = "Red";
+                        isLocked = true;
+                    }
+
+                    blocks.Add(new SkillStageBlock
+                    {
+                        StageNumber = session.StageNumber,
+                        SkillId = session.SkillId,
+                        Description = description,
+                        Status = status,
+                        UserConfirmed = confirmed,
+                        IsLocked = isLocked
+                    });
+                }
             }
 
-            return blocks.OrderBy(b => b.StageNumber).ToList();
+            return blocks.OrderBy(b => b.SkillId).ThenBy(b => b.StageNumber).ToList();
         }
+
+
 
 
         ////////////////////////////////////////////////////////////////////////////

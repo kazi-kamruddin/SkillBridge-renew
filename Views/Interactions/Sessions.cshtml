@@ -3,56 +3,74 @@
 <div class="skill-blocks">
     @foreach (var stage in Model.SkillBlocks)
     {
-        <div class="stage @stage.Status" data-stage="@stage.StageNumber">
+        <div class="stage @stage.Status"
+             data-stage="@stage.StageNumber"
+             data-skill="@stage.SkillId">
             <span>@stage.StageNumber: @stage.Description</span>
-            @if (!stage.UserConfirmed)
+            @if (!stage.IsLocked && !stage.UserConfirmed)
             {
-                <button class="mark-done" data-stage="@stage.StageNumber">Mark Done</button>
+                <button class="mark-done" data-stage="@stage.StageNumber" data-skill="@stage.SkillId">
+                    Mark Done
+                </button>
             }
         </div>
     }
 </div>
 
 <!-- End Interaction Button -->
-@if (Model.SkillBlocks.All(s => s.Status == "Green" || s.StageNumber > 7))
+@if (Model.SkillBlocks.All(s => s.Status == "Green"))
 {
     <button id="end-interaction-btn" class="btn btn-success">End Interaction</button>
 }
 
-<script>
-    $(document).ready(function () {
+@section scripts {
+    <script>
+        $(document).ready(function () {
 
-        // Mark Stage Done AJAX
-        $(".mark-done").click(function () {
-            var button = $(this);
-            var stageNumber = button.data("stage");
-            $.post("@Url.Action("MarkStageDone", "Interactions")",
-                { stageNumber: stageNumber, interactionId: @Model.InteractionId },
-                function (response) {
-                    if (response.success) {
-                        var stageDiv = button.closest(".stage");
-                        if (response.status === "Confirmed") {
-                            stageDiv.removeClass("Red Yellow").addClass("Green");
-                        } else {
-                            stageDiv.removeClass("Red Green").addClass("Yellow");
+            // Mark Stage Done AJAX
+            $(".mark-done").click(function () {
+                var button = $(this);
+                var stageNumber = button.data("stage");
+                var skillId = button.data("skill");
+
+                $.post("@Url.Action("MarkStageDone", "Interactions")",
+                    { stageNumber: stageNumber, skillId: skillId, interactionId: @Model.InteractionId },
+                    function (response) {
+                        if (response.success) {
+                            var stageDiv = button.closest(".stage");
+                            if (response.status === "Confirmed") {
+                                stageDiv.removeClass("Red Yellow").addClass("Green");
+                            } else {
+                                stageDiv.removeClass("Red Green").addClass("Yellow");
+                            }
+                            button.remove(); // remove the button after marking
+
+                            // Check if all stages are green to show End Interaction button
+                            if ($(".stage").length === $(".stage.Green").length && $("#end-interaction-btn").length === 0) {
+                                $(".skill-blocks").after('<button id="end-interaction-btn" class="btn btn-success">End Interaction</button>');
+                                attachEndInteractionClick();
+                            }
                         }
-                        button.remove(); // remove the button after marking
-                    }
-                });
-        });
+                    });
+            });
 
-        // End Interaction AJAX
-        $("#end-interaction-btn").click(function () {
-            $.post("@Url.Action("EndInteraction", "Interactions")",
-                { id: @Model.InteractionId },
-                function (response) {
-                    alert("Interaction completed!");
-                    window.location.href = "@Url.Action("Index", "Interactions")";
+            // Attach End Interaction click
+            function attachEndInteractionClick() {
+                $("#end-interaction-btn").click(function () {
+                    $.post("@Url.Action("EndInteraction", "Interactions")",
+                        { id: @Model.InteractionId },
+                        function (response) {
+                            alert("Interaction completed!");
+                            window.location.href = "@Url.Action("Index", "Interactions")";
+                        });
                 });
-        });
+            }
 
-    });
-</script>
+            // Attach initially if button already exists
+            attachEndInteractionClick();
+        });
+    </script>
+}
 
 <style>
     .stage {

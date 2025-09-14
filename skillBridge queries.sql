@@ -1,22 +1,23 @@
 use SkillBridgeDatabase;
 
-select * from dbo.AspNetUsers;
-select * from dbo.Skills;
-select * from dbo.SkillCategories;
-select * from dbo.SkillStages;
-select * from dbo.AspNetUsers;
-select * from dbo.UserSkills;
-select * from dbo.UserInformations;
-select * from dbo.Interactions;
-select * from dbo.AspNetUsers;
-select * from dbo.UserSkills;
-select * from dbo.UserInformations;
-select * from dbo.Interactions;
-select * from dbo.InteractionSessions;
-select * from dbo.Ratings;
-select * from dbo.AspNetUsers;
-select * from dbo.Notifications;
-select * from dbo.SkillRequests;
+SELECT 'AspNetUsers' AS TableName, * FROM dbo.AspNetUsers; 
+SELECT 'Skills' AS TableName, * FROM dbo.Skills; 
+SELECT 'SkillCategories' AS TableName, * FROM dbo.SkillCategories; 
+SELECT 'SkillStages' AS TableName, * FROM dbo.SkillStages; 
+SELECT 'AspNetUsers' AS TableName, * FROM dbo.AspNetUsers; 
+SELECT 'UserSkills' AS TableName, * FROM dbo.UserSkills; 
+SELECT 'UserInformations' AS TableName, * FROM dbo.UserInformations; 
+SELECT 'Interactions' AS TableName, * FROM dbo.Interactions; 
+SELECT 'AspNetUsers' AS TableName, * FROM dbo.AspNetUsers; 
+SELECT 'UserSkills' AS TableName, * FROM dbo.UserSkills; 
+SELECT 'UserInformations' AS TableName, * FROM dbo.UserInformations; 
+SELECT 'Interactions' AS TableName, * FROM dbo.Interactions; 
+SELECT 'InteractionSessions' AS TableName, * FROM dbo.InteractionSessions; 
+SELECT 'Ratings' AS TableName, * FROM dbo.Ratings; 
+SELECT 'AspNetUsers' AS TableName, * FROM dbo.AspNetUsers; 
+SELECT 'Notifications' AS TableName, * FROM dbo.Notifications; 
+SELECT 'SkillRequests' AS TableName, * FROM dbo.SkillRequests;
+
 
 select * from dbo.AspNetUsers where Email='q@q.com' or Email='superman@g.com';
 select * from dbo.SkillRequests;
@@ -38,7 +39,7 @@ WHERE Status IN (
 
 DELETE FROM dbo.SkillRequests
 WHERE Status IN (
-    'Pending');
+    'Pending', 'Declined', 'Accepted');
 
 DELETE FROM dbo.UserInformations
 WHERE Age IN (
