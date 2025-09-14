@@ -27,19 +27,28 @@ select * from dbo.Interactions;
 
 DELETE FROM dbo.Notifications
 WHERE Type IN (
-    'SkillRequest','Info');
+    'SkillRequest','Info','Feedback');
 
 	DELETE FROM dbo.Interactions
 WHERE Status IN (
-    'Ongoing');
+    'Ongoing','Completed');
+
+	DELETE FROM dbo.InteractionSessions
+WHERE Status IN (
+    'Ongoing','Completed');
+
+DELETE FROM dbo.SkillRequests
+WHERE Status IN (
+    'Pending', 'Declined', 'Accepted');
+
+
+
 
 DELETE FROM dbo.UserSkills
 WHERE Status IN (
     'Learning','Teaching');
 
-DELETE FROM dbo.SkillRequests
-WHERE Status IN (
-    'Pending', 'Declined', 'Accepted');
+
 
 DELETE FROM dbo.UserInformations
 WHERE Age IN (

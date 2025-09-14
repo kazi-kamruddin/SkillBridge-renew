@@ -34,8 +34,8 @@ namespace SkillBridge.Models
     {
         public int InteractionId { get; set; }
         public string SkillName { get; set; }
-        public string FromUserName { get; set; } 
-        public string ToUserId { get; set; }     
+        public string FromUserName { get; set; }
+        public string ToUserId { get; set; }
 
         [Required]
         [Range(1, 10, ErrorMessage = "Rating must be between 1 and 10")]

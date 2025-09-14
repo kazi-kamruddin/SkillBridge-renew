@@ -10,7 +10,7 @@
 <p>@Model.Profession | @Model.Location</p>
 <p>@Model.Bio</p>
 
-<h3>Skills to Teach</h3>
+<h3>Skills @Model.FullName knows</h3>
 <ul id="skillsToTeachList">
     @foreach (var skill in Model.SkillsToTeach)
     {
@@ -36,7 +36,7 @@
     }
 </ul>
 
-<h3>Skills to Learn</h3>
+<h3>Skills @Model.FullName wants to learn</h3>
 <ul>
     @foreach (var skill in Model.SkillsToLearn)
     {

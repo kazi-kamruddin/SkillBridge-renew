@@ -17,9 +17,9 @@ namespace SkillBridge.Controllers
             db = new ApplicationDbContext();
         }
 
-        
+
         ////////////////////////////////////////////////////////////////////////////
-        
+
         // Interaction Index Page
         public ActionResult Index()
         {
@@ -39,8 +39,10 @@ namespace SkillBridge.Controllers
                 InteractionId = i.Id,
                 Status = i.Status,
                 OtherUserName = i.User1Id == userId ? i.User2.UserName : i.User1.UserName,
-                SkillYouLearn = i.User1Id == userId ? i.SkillFromTeacher.Name : i.SkillFromRequester.Name,
-                SkillYouTeach = i.User1Id == userId ? i.SkillFromRequester.Name : i.SkillFromTeacher.Name
+
+                // Correct mapping
+                SkillYouLearn = i.User1Id == userId ? i.SkillFromRequester.Name : i.SkillFromTeacher.Name,
+                SkillYouTeach = i.User1Id == userId ? i.SkillFromTeacher.Name : i.SkillFromRequester.Name
             }).ToList();
 
             return View(model);
