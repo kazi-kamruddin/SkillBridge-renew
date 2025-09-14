@@ -18,9 +18,27 @@ select * from dbo.AspNetUsers;
 select * from dbo.Notifications;
 select * from dbo.SkillRequests;
 
+select * from dbo.AspNetUsers where Email='q@q.com' or Email='superman@g.com';
+select * from dbo.SkillRequests;
+select * from dbo.Notifications;
+select * from dbo.Interactions;
+
+
+DELETE FROM dbo.Notifications
+WHERE Type IN (
+    'SkillRequest','Info');
+
+	DELETE FROM dbo.Interactions
+WHERE Status IN (
+    'Ongoing');
+
 DELETE FROM dbo.UserSkills
 WHERE Status IN (
     'Learning','Teaching');
+
+DELETE FROM dbo.SkillRequests
+WHERE Status IN (
+    'Pending');
 
 DELETE FROM dbo.UserInformations
 WHERE Age IN (
@@ -44,3 +62,26 @@ WHERE Email IN (
     'w@w.com'
 );
 
+
+DELETE FROM dbo.UserInformations
+WHERE FullName='de gea';
+
+
+delete from dbo.AspNetUsers where EmailConfirmed=0;
+
+UPDATE dbo.Notifications
+SET IsRead = 0;
+
+
+
+select * from dbo.Skills;
+select * from dbo.SkillCategories;
+select * from dbo.SkillStages;
+select * from dbo.AspNetUsers;
+select * from dbo.UserSkills;
+select * from dbo.UserInformations;
+select * from dbo.Interactions;
+select * from dbo.InteractionSessions;
+select * from dbo.Ratings;
+select * from dbo.Notifications;
+select * from dbo.SkillRequests;

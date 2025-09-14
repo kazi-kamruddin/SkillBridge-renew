@@ -3,25 +3,4 @@
     ViewBag.Title = "Rate Interaction";
 }
 
-<h2>Rate Your Interaction with @Model.OtherUserName</h2>
-
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-
-    <div class="form-group">
-        @Html.LabelFor(m => m.RatingValue)
-        @Html.TextBoxFor(m => m.RatingValue, new { @class = "form-control", type = "number", min = "1", max = "10" })
-        @Html.ValidationMessageFor(m => m.RatingValue)
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(m => m.Comment)
-        @Html.TextAreaFor(m => m.Comment, new { @class = "form-control", rows = 3 })
-        @Html.ValidationMessageFor(m => m.Comment)
-    </div>
-
-    @Html.HiddenFor(m => m.InteractionId)
-
-    <button type="submit" class="btn btn-primary">Submit Rating</button>
-}
+<h2>Rate Your Interaction with *partner*</h2>

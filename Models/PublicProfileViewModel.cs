@@ -20,7 +20,6 @@ namespace SkillBridge.Models
         public string SkillName { get; set; }
         public int Stage { get; set; }
 
-        // New property for request status
         public string RequestStatus { get; set; } = "None"; // None | Pending | Declined
 
         public int UserSkillId { get; set; }

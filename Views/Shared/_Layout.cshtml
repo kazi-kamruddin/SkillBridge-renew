@@ -56,7 +56,6 @@
 
     <script>
         $(document).ready(function () {
-            // Update unread notification count dynamically
             function updateNotifBadge() {
                 $.get('@Url.Action("GetNotifications", "Notifications")', function (data) {
                     var badge = $("#notifBadge");
@@ -69,7 +68,7 @@
             }
 
             updateNotifBadge();
-            setInterval(updateNotifBadge, 10000); // refresh every 10 seconds
+            setInterval(updateNotifBadge, 5000); 
         });
     </script>
 </body>

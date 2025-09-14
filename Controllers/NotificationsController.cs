@@ -80,15 +80,12 @@ namespace SkillBridge.Controllers
             var skillRequest = _context.SkillRequests.FirstOrDefault(r => r.Id == notif.ReferenceId);
             if (skillRequest != null && skillRequest.Status == "Pending")
             {
-                // Update skill request status
                 skillRequest.Status = "Declined";
 
-                // Update original notification to Info type
                 notif.Type = "Info";
                 notif.Message = $"You declined the skill request for <b>{skillRequest.Skill.Name}</b> from {skillRequest.Requester.UserName}.";
                 notif.IsRead = true;
 
-                // Notify requester
                 _context.Notifications.Add(new Notification
                 {
                     UserId = skillRequest.RequesterId,
@@ -157,15 +154,12 @@ namespace SkillBridge.Controllers
             };
             _context.Interactions.Add(interaction);
 
-            // Update skill request status
             skillRequest.Status = "Accepted";
 
-            // Update original notification to Info type
             notif.Type = "Info";
             notif.Message = $"You accepted the skill request for <b>{skillRequest.Skill.Name}</b> from {skillRequest.Requester.UserName}.";
             notif.IsRead = true;
 
-            // Notify requester
             _context.Notifications.Add(new Notification
             {
                 UserId = skillRequest.RequesterId,

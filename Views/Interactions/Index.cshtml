@@ -6,34 +6,3 @@
 }
 
 <h2>Your Interactions</h2>
-
-@if (!Model.Any())
-{
-    <p>You have no ongoing interactions yet. Explore users to start learning!</p>
-}
-else
-{
-    <div class="interaction-list">
-        @foreach (var interaction in Model)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        @if (interaction.RequesterId == User.Identity.GetUserId())
-                        {
-                            <text>Learning @interaction.SkillRequested.Name from @interaction.Receiver.UserName</text>
-                        }
-                        else
-                        {
-                            <text>Teaching @interaction.SkillOffered.Name to @interaction.Requester.UserName</text>
-                        }
-                    </h5>
-                    <p>Status: <strong>@interaction.Status</strong></p>
-                    <a href="@Url.Action("Details", "Interactions", new { id = interaction.Id })" class="btn btn-primary">
-                        View Details
-                    </a>
-                </div>
-            </div>
-        }
-    </div>
-}

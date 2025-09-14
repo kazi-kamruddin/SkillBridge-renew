@@ -10,13 +10,13 @@ namespace SkillBridge.Models
         public int Id { get; set; }
 
         [Required]
-        public string RequesterId { get; set; } // user who sent the request
+        public string RequesterId { get; set; } 
 
         [Required]
-        public string ReceiverId { get; set; } // user receiving the request
+        public string ReceiverId { get; set; } 
 
         [Required]
-        public int SkillId { get; set; } // skill being requested
+        public int SkillId { get; set; } 
 
         [Required]
         [MaxLength(20)]
@@ -24,7 +24,6 @@ namespace SkillBridge.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation properties
         [ForeignKey("RequesterId")]
         public virtual ApplicationUser Requester { get; set; }
 

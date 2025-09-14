@@ -77,20 +77,18 @@ namespace SkillBridge.Models
                 .HasForeignKey(i => i.SkillFromRequesterId)
                 .WillCascadeOnDelete(false);
 
-            // SkillRequests → AspNetUsers
             modelBuilder.Entity<SkillRequest>()
                 .HasRequired(r => r.Requester)
                 .WithMany()
                 .HasForeignKey(r => r.RequesterId)
-                .WillCascadeOnDelete(false);  // important
+                .WillCascadeOnDelete(false);  
 
             modelBuilder.Entity<SkillRequest>()
                 .HasRequired(r => r.Receiver)
                 .WithMany()
                 .HasForeignKey(r => r.ReceiverId)
-                .WillCascadeOnDelete(false);  // important
+                .WillCascadeOnDelete(false); 
 
-            // SkillRequests → Skills
             modelBuilder.Entity<SkillRequest>()
                 .HasRequired(r => r.Skill)
                 .WithMany()

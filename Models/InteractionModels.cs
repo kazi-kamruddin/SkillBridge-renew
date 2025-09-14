@@ -10,7 +10,6 @@ namespace SkillBridge.Models
         [Key]
         public int Id { get; set; }
 
-        // Two users in the interaction
         [Required]
         public string User1Id { get; set; }
         [ForeignKey("User1Id")]
@@ -21,7 +20,6 @@ namespace SkillBridge.Models
         [ForeignKey("User2Id")]
         public virtual ApplicationUser User2 { get; set; }
 
-        // Skills being exchanged
         [Required]
         public int SkillFromTeacherId { get; set; }
         [ForeignKey("SkillFromTeacherId")]
@@ -61,7 +59,6 @@ namespace SkillBridge.Models
         [Range(1, 7)]
         public int StageNumber { get; set; }
 
-        // Updated to generic confirmations
         public bool User1Confirmed { get; set; } = false;
         public bool User2Confirmed { get; set; } = false;
 
@@ -98,7 +95,6 @@ namespace SkillBridge.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 
-    // Notification stays unchanged
     public class Notification
     {
         [Key]
