@@ -17,7 +17,10 @@ SELECT 'Ratings' AS TableName, * FROM dbo.Ratings;
 SELECT 'AspNetUsers' AS TableName, * FROM dbo.AspNetUsers; 
 SELECT 'Notifications' AS TableName, * FROM dbo.Notifications; 
 SELECT 'SkillRequests' AS TableName, * FROM dbo.SkillRequests;
-
+select 'UserRatings' AS TableName, * from dbo.UserRatings;
+SELECT 'AspNetUsers' AS TableName, * FROM dbo.AspNetUsers; 
+SELECT 'Notifications' AS TableName, * FROM dbo.Notifications; 
+SELECT 'Ratings' AS TableName, * FROM dbo.Ratings; 
 
 select * from dbo.AspNetUsers where Email='q@q.com' or Email='superman@g.com';
 select * from dbo.SkillRequests;
@@ -74,13 +77,17 @@ WHERE Email IN (
 
 
 DELETE FROM dbo.UserInformations
-WHERE FullName='de gea';
+WHERE FullName='charles leclercc' or FullName='kazi kamruddin' or FullName='carlos sainz';
 
+DELETE FROM dbo.UserSkills
+WHERE UserId='7c9d5816-7405-4cbe-a6f3-151aa571b963' or UserId='e7c0d3af-6b9a-44b7-a66b-d1b224cdce56' or UserId='353cdea8-04b1-489d-be09-e58b0823a848';
 
 delete from dbo.AspNetUsers where EmailConfirmed=0;
 
-UPDATE dbo.Notifications
-SET IsRead = 0;
+UPDATE dbo.UserRatings 
+SET AccumulatedRating = 18 where id=1;
+UPDATE dbo.UserRatings 
+SET AccumulatedRating = 7 where id=3;
 
 
 
@@ -95,4 +102,5 @@ select * from dbo.InteractionSessions;
 select * from dbo.Ratings;
 select * from dbo.Notifications;
 select * from dbo.SkillRequests;
-select * from dbo.u
+select * from dbo.UserRatings;
+select * from dbo.AspNetUsers;

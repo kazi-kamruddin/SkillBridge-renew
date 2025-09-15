@@ -63,6 +63,11 @@ namespace SkillBridge.Controllers
             var teachingSkills = userSkills.Where(s => s.Status == "Teaching").ToList();
             var learningSkills = userSkills.Where(s => s.Status == "Learning").ToList();
 
+            var userRatings = db.UserRatings.FirstOrDefault(ur => ur.UserId == userId);
+            double averageRating = (userRatings != null && userRatings.RatingsReceived > 0)
+                ? (double)userRatings.AccumulatedRating / userRatings.RatingsReceived
+                : 0;
+
             var model = new IndexViewModel
             {
                 HasPassword = hasPassword,
@@ -73,11 +78,13 @@ namespace SkillBridge.Controllers
                 Location = userInfo?.Location ?? "",
                 Age = userInfo?.Age ?? 0,
                 TeachingSkills = teachingSkills,
-                LearningSkills = learningSkills
+                LearningSkills = learningSkills,
+                AverageRating = averageRating
             };
 
             return View(model);
         }
+
 
 
 
@@ -252,9 +259,14 @@ namespace SkillBridge.Controllers
                         ? (existingRequest != null
                             ? (existingRequest.Status == "Pending" ? "Pending" : "Declined")
                             : "None")
-                        : "Hidden" 
+                        : "Hidden"
                 });
             }
+
+            var userRatings = db.UserRatings.FirstOrDefault(ur => ur.UserId == id);
+            double averageRating = (userRatings != null && userRatings.RatingsReceived > 0)
+                ? (double)userRatings.AccumulatedRating / userRatings.RatingsReceived
+                : 0;
 
             var model = new PublicProfileViewModel
             {
@@ -272,7 +284,8 @@ namespace SkillBridge.Controllers
                         SkillName = us.Skill.Name,
                         Stage = us.KnownUpToStage ?? 0,
                         RequestStatus = "None"
-                    }).ToList()
+                    }).ToList(),
+                AverageRating = averageRating
             };
 
             return View(model);
