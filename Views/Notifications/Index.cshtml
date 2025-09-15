@@ -14,24 +14,34 @@ else
     <ul class="list-group">
         @foreach (var n in Model)
         {
-            <li class="list-group-item @(n.IsRead ? "" : "list-group-item-info")" data-id="@n.Id">
-                @Html.Raw(n.Message)
-                <small class="text-muted float-right">@n.CreatedAt.ToLocalTime().ToString("g")</small>
+            <li class="list-group-item @(n.IsRead ? "" : "list-group-item-info") d-flex justify-content-between align-items-start" data-id="@n.Id">
+                <div class="flex-grow-1">
+                    @Html.Raw(n.Message)
+                    <br />
+                    <small class="text-muted">@n.CreatedAt.ToLocalTime().ToString("g")</small>
+                </div>
 
-                @* Only show buttons for Pending SkillRequest type *@
-                @if (n.Type == "SkillRequest" && !n.IsRead)
-                {
-                    <div class="mt-2">
-                        <button class="btn btn-sm btn-success accept-btn" data-id="@n.Id">Accept</button>
-                        <button class="btn btn-sm btn-danger decline-btn" data-id="@n.Id">Decline</button>
-                    </div>
+                <div class="ml-auto text-right">
+                    @if (n.Type == "SkillRequest" && !n.IsRead)
+                    {
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-success accept-btn" data-id="@n.Id">Accept</button>
+                            <button class="btn btn-sm btn-danger decline-btn" data-id="@n.Id">Decline</button>
+                        </div>
 
-                    <div class="mt-2 skill-selection d-none" data-id="@n.Id">
-                        <label>Select skill to learn from requester:</label>
-                        <select class="form-control skill-dropdown" data-id="@n.Id"></select>
-                        <button class="btn btn-sm btn-primary mt-1 initialize-btn" data-id="@n.Id">Start Interaction</button>
-                    </div>
-                }
+                        <div class="mt-2 skill-selection d-none" data-id="@n.Id">
+                            <label>Select skill to learn from requester:</label>
+                            <select class="form-control skill-dropdown" data-id="@n.Id"></select>
+                            <button class="btn btn-sm btn-primary mt-1 initialize-btn" data-id="@n.Id">Start Interaction</button>
+                        </div>
+                    }
+                    else if (n.Type == "Info" && !n.IsRead)
+                    {
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-secondary mark-read" data-id="@n.Id">Mark as Read</button>
+                        </div>
+                    }
+                </div>
             </li>
         }
     </ul>
@@ -40,20 +50,20 @@ else
 @section scripts {
     <script>
         $(document).ready(function () {
-            // Mark as read button
-            $(".mark-read").click(function () {
+            $(document).on("click", ".mark-read", function () {
                 var btn = $(this);
                 var id = btn.data("id");
                 $.post("/Notifications/MarkAsRead/" + id, function (res) {
                     if (res.success) {
-                        btn.closest("li").removeClass("list-group-item-info");
-                        btn.remove();
+                        var li = btn.closest("li");
+                        li.removeClass("list-group-item-info");
+                        btn.parent().remove(); 
                     }
                 });
             });
 
-            // Decline skill request
-            $(".decline-btn").click(function () {
+            // decline request
+            $(document).on("click", ".decline-btn", function () {
                 var btn = $(this);
                 var id = btn.data("id");
                 $.post("/Notifications/DeclineSkillRequest", { notificationId: id }, function (res) {
@@ -64,8 +74,8 @@ else
                 });
             });
 
-            // Accept skill request ? show skill dropdown
-            $(".accept-btn").click(function () {
+            // accept request
+            $(document).on("click", ".accept-btn", function () {
                 var btn = $(this);
                 var id = btn.data("id");
                 var container = $(".skill-selection[data-id='" + id + "']");
@@ -84,8 +94,8 @@ else
                 });
             });
 
-            // Initialize interaction
-            $(".initialize-btn").click(function () {
+            // initiate interaction
+            $(document).on("click", ".initialize-btn", function () {
                 var btn = $(this);
                 var id = btn.data("id");
                 var dropdown = $(".skill-selection[data-id='" + id + "']").find(".skill-dropdown");

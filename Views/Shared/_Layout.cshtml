@@ -21,6 +21,7 @@
             <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">@Html.ActionLink("Explore", "Index", "Explore", new { area = "" }, new { @class = "nav-link" })</li>
+                    <li class="nav-item">@Html.ActionLink("Interactions", "Index", "Interactions", new { area = "" }, new { @class = "nav-link" })</li>
                     <li class="nav-item">@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     <li class="nav-item">@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                 </ul>
@@ -55,22 +56,21 @@
     @RenderSection("scripts", required: false)
 
     <script>
-        $(document).ready(function () {
-            // Update unread notification count dynamically
-            function updateNotifBadge() {
-                $.get('@Url.Action("GetNotifications", "Notifications")', function (data) {
-                    var badge = $("#notifBadge");
-                    if (data.unreadCount > 0) {
-                        badge.text(data.unreadCount).show();
-                    } else {
-                        badge.hide();
-                    }
-                });
-            }
+    $(function () { 
+        function updateNotifBadge() {
+            $.get('@Url.Action("GetNotifications", "Notifications")', function (data) {
+                var badge = $("#notifBadge");
+                if (data.unreadCount > 0) {
+                    badge.text(data.unreadCount).show();
+                } else {
+                    badge.hide();
+                }
+            });
+        }
 
-            updateNotifBadge();
-            setInterval(updateNotifBadge, 10000); // refresh every 10 seconds
-        });
+        updateNotifBadge();
+        setInterval(updateNotifBadge, 5000);
+    });
     </script>
 </body>
 </html>

@@ -17,6 +17,11 @@ namespace SkillBridge.Controllers
             "Dhaka", "Chattogram", "Khulna", "Barishal", "Sylhet", "Mymensingh", "Rajshahi", "Rangpur"
         };
 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
+        
         public ActionResult Index(string skillFilter = "", int stageFilter = 0, string locationFilter = "")
         {
             var currentUserId = User.Identity.GetUserId();

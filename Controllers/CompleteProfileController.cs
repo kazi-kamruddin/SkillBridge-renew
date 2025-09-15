@@ -11,7 +11,10 @@ namespace SkillBridge.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /CompleteProfile/
+
         public ActionResult Index()
         {
             var skillData = db.SkillCategories
@@ -26,7 +29,11 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: /CompleteProfile/
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Index(CompleteProfileViewModel model)
@@ -93,6 +100,11 @@ namespace SkillBridge.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing)

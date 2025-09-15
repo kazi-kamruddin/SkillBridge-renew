@@ -7,7 +7,6 @@ using Microsoft.AspNet.Identity.EntityFramework;
 namespace SkillBridge.Models
 {    public class ApplicationUser : IdentityUser
     {
-        // Generates the ClaimsIdentity for login cookies
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
@@ -52,7 +51,6 @@ namespace SkillBridge.Models
                 .HasForeignKey(i => i.User2Id)
                 .WillCascadeOnDelete(false);
 
-            // Ratings → AspNetUsers
             modelBuilder.Entity<Rating>()
                 .HasRequired(r => r.FromUser)
                 .WithMany()
@@ -77,20 +75,18 @@ namespace SkillBridge.Models
                 .HasForeignKey(i => i.SkillFromRequesterId)
                 .WillCascadeOnDelete(false);
 
-            // SkillRequests → AspNetUsers
             modelBuilder.Entity<SkillRequest>()
                 .HasRequired(r => r.Requester)
                 .WithMany()
                 .HasForeignKey(r => r.RequesterId)
-                .WillCascadeOnDelete(false);  // important
+                .WillCascadeOnDelete(false);  
 
             modelBuilder.Entity<SkillRequest>()
                 .HasRequired(r => r.Receiver)
                 .WithMany()
                 .HasForeignKey(r => r.ReceiverId)
-                .WillCascadeOnDelete(false);  // important
+                .WillCascadeOnDelete(false); 
 
-            // SkillRequests → Skills
             modelBuilder.Entity<SkillRequest>()
                 .HasRequired(r => r.Skill)
                 .WithMany()
