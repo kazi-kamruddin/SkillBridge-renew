@@ -1,5 +1,9 @@
 @model List<SkillBridge.Models.InteractionIndexViewModel>
 
+@section Styles {
+    <link rel="stylesheet" href="~/Styles/indexInteractions.css" />
+}
+
 @foreach (var interaction in Model)
 {
     <div class="card">

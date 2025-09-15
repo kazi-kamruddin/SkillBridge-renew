@@ -262,11 +262,13 @@
     <Content Include="Styles\indexCompleteProfile.css" />
     <Content Include="Styles\indexExplore.css" />
     <Content Include="Styles\indexHome.css" />
+    <Content Include="Styles\indexInteractions.css" />
     <Content Include="Styles\indexProfile.css" />
     <Content Include="Styles\login.css" />
     <Content Include="Styles\publicProfile.css" />
     <Content Include="Styles\register.css" />
     <Content Include="Styles\resetPassword.css" />
+    <Content Include="Styles\sessions.css" />
     <Content Include="Styles\updateProfile.css" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">

@@ -39,6 +39,8 @@ namespace SkillBridge.Controllers
             private set => _signInManager = value;
         }
 
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Profile/Index
         public async Task<ActionResult> Index()
         {
@@ -77,6 +79,10 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Profile/UpdateProfile
         public async Task<ActionResult> UpdateProfile()
         {
@@ -109,6 +115,9 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: /Profile/UpdateProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -164,9 +173,15 @@ namespace SkillBridge.Controllers
             return RedirectToAction("Index");
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Profile/ChangePassword
         public ActionResult ChangePassword() => View();
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: /Profile/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -263,8 +278,9 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
-        /////////////////////////////////////////////////////////////////////////////
 
+
+        /////////////////////////////////////////////////////////////////////////////
         // POST: /Profile/SendSkillRequest
         [HttpPost]
         public JsonResult SendSkillRequest(int userSkillId, string profileId)

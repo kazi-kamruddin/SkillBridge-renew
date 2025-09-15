@@ -1,5 +1,11 @@
 @model SkillBridge.Models.InteractionSessionsViewModel
 
+
+@section Styles {
+    <link rel="stylesheet" href="~/Styles/sessions.css" />
+}
+
+
 <div class="skill-blocks">
     @foreach (var stage in Model.SkillBlocks)
     {
@@ -27,7 +33,6 @@
     <script>
         $(document).ready(function () {
 
-            // Mark Stage Done AJAX
             $(".mark-done").click(function () {
                 var button = $(this);
                 var stageNumber = button.data("stage");
@@ -43,9 +48,8 @@
                             } else {
                                 stageDiv.removeClass("Red Green").addClass("Yellow");
                             }
-                            button.remove(); // remove the button after marking
+                            button.remove();
 
-                            // Check if all stages are green to show End Interaction button
                             if ($(".stage").length === $(".stage.Green").length && $("#end-interaction-btn").length === 0) {
                                 $(".skill-blocks").after('<button id="end-interaction-btn" class="btn btn-success">End Interaction</button>');
                                 attachEndInteractionClick();
@@ -54,7 +58,6 @@
                     });
             });
 
-            // Attach End Interaction click
             function attachEndInteractionClick() {
                 $("#end-interaction-btn").click(function () {
                     $.post("@Url.Action("EndInteraction", "Interactions")",
@@ -66,36 +69,7 @@
                 });
             }
 
-            // Attach initially if button already exists
             attachEndInteractionClick();
         });
     </script>
 }
-
-<style>
-    .stage {
-        padding: 10px;
-        margin-bottom: 5px;
-        border-radius: 5px;
-    }
-
-    .Red {
-        background-color: #f8d7da;
-    }
-
-    .Yellow {
-        background-color: #fff3cd;
-    }
-
-    .Green {
-        background-color: #d4edda;
-    }
-
-    .mark-done {
-        margin-left: 10px;
-    }
-
-    #end-interaction-btn {
-        margin-top: 20px;
-    }
-</style>

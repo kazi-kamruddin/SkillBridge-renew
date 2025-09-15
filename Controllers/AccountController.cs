@@ -34,7 +34,11 @@ namespace SkillBridge.Controllers
             private set => _userManager = value;
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Account/Login
+
         [AllowAnonymous]
         public ActionResult Login(string returnUrl)
         {
@@ -42,7 +46,12 @@ namespace SkillBridge.Controllers
             return View();
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: /Account/Login
+
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -65,14 +74,23 @@ namespace SkillBridge.Controllers
             }
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Account/Register
+
+
         [AllowAnonymous]
         public ActionResult Register()
         {
             return View();
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: /Account/Register
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -93,14 +111,24 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Account/ForgotPassword
+
+
         [AllowAnonymous]
         public ActionResult ForgotPassword()
         {
             return View();
         }
 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: /Account/ForgotPassword
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -117,14 +145,24 @@ namespace SkillBridge.Controllers
             return View("ForgotPasswordConfirmation");
         }
 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Account/ResetPassword
+
         [AllowAnonymous]
         public ActionResult ResetPassword(string code)
         {
             return code == null ? View("Error") : View();
         }
 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: /Account/ResetPassword
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -142,14 +180,22 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Account/ResetPasswordConfirmation
+
         [AllowAnonymous]
         public ActionResult ResetPasswordConfirmation()
         {
             return View();
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: /Account/LogOff
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()

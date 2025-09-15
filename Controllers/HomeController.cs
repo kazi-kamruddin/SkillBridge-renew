@@ -9,6 +9,9 @@ namespace SkillBridge.Controllers
     {
         private ApplicationDbContext db = new ApplicationDbContext();
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         public ActionResult Index()
         {
             var categories = db.SkillCategories
@@ -34,12 +37,19 @@ namespace SkillBridge.Controllers
             return View(categories);
         }
 
+
+
+
+        ////////////////////////////////////////////////////////////////////////////
         public ActionResult About()
         {
             ViewBag.Message = "Your application description page.";
             return View();
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         public ActionResult Contact()
         {
             ViewBag.Message = "Your contact page.";

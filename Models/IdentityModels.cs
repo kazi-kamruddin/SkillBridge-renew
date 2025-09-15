@@ -7,7 +7,6 @@ using Microsoft.AspNet.Identity.EntityFramework;
 namespace SkillBridge.Models
 {    public class ApplicationUser : IdentityUser
     {
-        // Generates the ClaimsIdentity for login cookies
         public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager)
         {
             var userIdentity = await manager.CreateIdentityAsync(this, DefaultAuthenticationTypes.ApplicationCookie);
@@ -52,7 +51,6 @@ namespace SkillBridge.Models
                 .HasForeignKey(i => i.User2Id)
                 .WillCascadeOnDelete(false);
 
-            // Ratings → AspNetUsers
             modelBuilder.Entity<Rating>()
                 .HasRequired(r => r.FromUser)
                 .WithMany()

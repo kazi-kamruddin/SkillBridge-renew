@@ -32,15 +32,13 @@ namespace SkillBridge.Controllers
                 .Include(i => i.SkillFromRequester)
                 .Include(i => i.SkillFromTeacher)
                 .ToList();
-
-            // Map to ViewModel
+            
             var model = interactions.Select(i => new InteractionIndexViewModel
             {
                 InteractionId = i.Id,
                 Status = i.Status,
                 OtherUserName = i.User1Id == userId ? i.User2.UserName : i.User1.UserName,
 
-                // Correct mapping
                 SkillYouLearn = i.User1Id == userId ? i.SkillFromRequester.Name : i.SkillFromTeacher.Name,
                 SkillYouTeach = i.User1Id == userId ? i.SkillFromTeacher.Name : i.SkillFromRequester.Name
             }).ToList();
@@ -135,18 +133,8 @@ namespace SkillBridge.Controllers
 
             if (interaction == null) return HttpNotFound();
 
-            string userId = User.Identity.GetUserId();
-            string learningUserId = interaction.User1Id == userId ? interaction.User2Id : interaction.User1Id;
-
-            int skillId = interaction.User1Id == learningUserId ? interaction.SkillFromRequesterId : interaction.SkillFromTeacherId;
-
-            // Update learning user's skill
-            var learningUserSkill = db.UserSkills.FirstOrDefault(us => us.UserId == learningUserId && us.SkillId == skillId);
-            if (learningUserSkill != null)
-            {
-                learningUserSkill.Status = "Teaching";
-                learningUserSkill.KnownUpToStage = MaxStageCompleted(interaction, skillId);
-            }
+            UpdateUserSkill(interaction.User1Id, interaction.SkillFromRequesterId, interaction);
+            UpdateUserSkill(interaction.User2Id, interaction.SkillFromTeacherId, interaction);
 
             interaction.Status = "Completed";
             db.SaveChanges();
@@ -155,6 +143,28 @@ namespace SkillBridge.Controllers
 
             return RedirectToAction("Index");
         }
+
+        private void UpdateUserSkill(string userId, int skillId, Interaction interaction)
+        {
+            if (skillId == 0) return; 
+
+            var userSkill = db.UserSkills.FirstOrDefault(us => us.UserId == userId && us.SkillId == skillId);
+
+            if (userSkill == null)
+            {
+                userSkill = new UserSkill
+                {
+                    UserId = userId,
+                    SkillId = skillId,
+                    Status = "Teaching"
+                };
+                db.UserSkills.Add(userSkill);
+            }
+
+            userSkill.KnownUpToStage = MaxStageCompleted(interaction, skillId);
+            userSkill.Status = "Teaching";
+        }
+
 
 
         ////////////////////////////////////////////////////////////////////////////
@@ -173,7 +183,6 @@ namespace SkillBridge.Controllers
 
             if (interaction == null) return HttpNotFound();
 
-            // Determine which skill the current user learned
             string skillName = interaction.User1Id == userId ? interaction.SkillFromTeacher.Name : interaction.SkillFromRequester.Name;
             string fromUserName = interaction.User1Id == userId ? interaction.User2.UserName : interaction.User1.UserName;
             string toUserId = userId;
@@ -189,7 +198,11 @@ namespace SkillBridge.Controllers
             return View(model);
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // Submit rating via AJAX
+
         [HttpPost]
         public ActionResult SubmitRating(InteractionRatingViewModel model)
         {
@@ -209,7 +222,6 @@ namespace SkillBridge.Controllers
 
             db.Ratings.Add(rating);
 
-            // Remove the feedback notification
             var notif = db.Notifications.FirstOrDefault(n => n.UserId == model.ToUserId && n.Type == "Feedback" && n.ReferenceId == model.InteractionId);
             if (notif != null) db.Notifications.Remove(notif);
 
@@ -228,14 +240,13 @@ namespace SkillBridge.Controllers
             var userId = User.Identity.GetUserId();
             var blocks = new List<SkillStageBlock>();
 
-            // Group sessions by Skill
             var sessionsBySkill = interaction.Sessions
                 .OrderBy(s => s.StageNumber)
                 .GroupBy(s => s.SkillId);
 
             foreach (var skillGroup in sessionsBySkill)
             {
-                bool nextStagePending = true; // Only first pending stage is yellow
+                bool nextStagePending = true; 
                 foreach (var session in skillGroup)
                 {
                     var stageEntity = db.SkillStages
@@ -252,12 +263,12 @@ namespace SkillBridge.Controllers
                     if (session.User1Confirmed && session.User2Confirmed)
                     {
                         status = "Green";
-                        nextStagePending = true; // unlock next stage
+                        nextStagePending = true; 
                     }
                     else if (nextStagePending)
                     {
                         status = "Yellow";
-                        nextStagePending = false; // only first pending stage is yellow
+                        nextStagePending = false; 
                     }
                     else
                     {
@@ -296,6 +307,7 @@ namespace SkillBridge.Controllers
                 .Max();
         }
 
+
         ////////////////////////////////////////////////////////////////////////////
 
         private void CreateFeedbackNotification(Interaction interaction)
@@ -318,7 +330,6 @@ namespace SkillBridge.Controllers
             db.Notifications.Add(notif2);
             db.SaveChanges();
         }
-
 
 
 

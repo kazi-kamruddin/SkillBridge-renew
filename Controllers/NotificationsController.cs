@@ -17,6 +17,9 @@ namespace SkillBridge.Controllers
             _context = new ApplicationDbContext();
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: /Notifications
         public ActionResult Index()
         {
@@ -29,6 +32,9 @@ namespace SkillBridge.Controllers
             return View(notifications);
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // AJAX: Get notifications as JSON for badge
         [HttpGet]
         public JsonResult GetNotifications()
@@ -54,6 +60,9 @@ namespace SkillBridge.Controllers
             return Json(new { notifications, unreadCount }, JsonRequestBehavior.AllowGet);
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: Mark notification as read
         [HttpPost]
         public ActionResult MarkAsRead(int id)
@@ -69,6 +78,9 @@ namespace SkillBridge.Controllers
             return Json(new { success = true });
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // POST: Decline skill request
         [HttpPost]
         public ActionResult DeclineSkillRequest(int notificationId)
@@ -101,6 +113,9 @@ namespace SkillBridge.Controllers
             return Json(new { success = true });
         }
 
+
+
+        ////////////////////////////////////////////////////////////////////////////
         // GET: Accept request → return skills requester can teach that current user wants to learn
         [HttpGet]
         public JsonResult AcceptSkillRequest(int notificationId)
@@ -134,7 +149,7 @@ namespace SkillBridge.Controllers
 
 
 
-
+        ////////////////////////////////////////////////////////////////////////////
         // POST: Initialize interaction after selecting skill
         [HttpPost]
         public ActionResult InitializeInteraction(int notificationId, int skillId)
@@ -145,31 +160,26 @@ namespace SkillBridge.Controllers
                 return Json(new { success = false });
 
             var skillRequest = _context.SkillRequests
-                .Include(r => r.Skill)      // include skill for name
-                .Include(r => r.Requester)  // include requester for name
+                .Include(r => r.Skill)      
+                .Include(r => r.Requester)  
                 .FirstOrDefault(r => r.Id == notif.ReferenceId && r.Status == "Pending");
 
             if (skillRequest == null)
                 return Json(new { success = false });
 
-            // 1. Create the interaction
             var interaction = new Interaction
             {
-                User1Id = userId,                      // the current user (receiver)
-                User2Id = skillRequest.RequesterId,    // the requester
-                SkillFromTeacherId = skillRequest.SkillId,  // skill requester can teach
-                SkillFromRequesterId = skillId,        // skill current user wants to learn
+                User1Id = userId,                      
+                User2Id = skillRequest.RequesterId,    
+                SkillFromTeacherId = skillRequest.SkillId,  
+                SkillFromRequesterId = skillId,        
                 Status = "Ongoing",
                 CreatedAt = DateTime.Now
             };
             _context.Interactions.Add(interaction);
-            _context.SaveChanges(); // Save to get interaction.Id
+            _context.SaveChanges(); 
 
-            // -------------------------------
-            // 2. Initialize InteractionSessions based on each user's teaching capability
-            // -------------------------------
-
-            // Get max stage that requester (User2) can teach
+            
             var requesterSkill = _context.UserSkills
                 .FirstOrDefault(us => us.UserId == interaction.User2Id && us.SkillId == interaction.SkillFromRequesterId);
 
@@ -193,7 +203,6 @@ namespace SkillBridge.Controllers
                 });
             }
 
-            // Get max stage that receiver (User1) can teach
             var teacherSkill = _context.UserSkills
                 .FirstOrDefault(us => us.UserId == interaction.User1Id && us.SkillId == interaction.SkillFromTeacherId);
 
@@ -217,9 +226,6 @@ namespace SkillBridge.Controllers
                 });
             }
 
-            // -------------------------------
-            // 3. Update skill request and notifications
-            // -------------------------------
             skillRequest.Status = "Accepted";
 
             notif.Type = "Info";
@@ -242,6 +248,9 @@ namespace SkillBridge.Controllers
 
 
 
+
+        ////////////////////////////////////////////////////////////////////////////
+        
         [HttpGet]
         public JsonResult GetRealtimeNotifications()
         {
@@ -268,6 +277,9 @@ namespace SkillBridge.Controllers
         }
 
 
+
+        ////////////////////////////////////////////////////////////////////////////
+        
         protected override void Dispose(bool disposing)
         {
             if (disposing) _context.Dispose();

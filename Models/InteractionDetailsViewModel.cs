@@ -19,7 +19,7 @@ namespace SkillBridge.Models
         public string Description { get; set; }
         public string Status { get; set; } // Red, Yellow, Green
         public bool UserConfirmed { get; set; }
-        public bool IsLocked { get; set; } // true if stage is locked
+        public bool IsLocked { get; set; } 
     }
 
 
