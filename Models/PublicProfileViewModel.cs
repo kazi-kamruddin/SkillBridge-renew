@@ -12,6 +12,9 @@ namespace SkillBridge.Models
 
         public List<SkillViewModel> SkillsToTeach { get; set; }
         public List<SkillViewModel> SkillsToLearn { get; set; }
+
+
+        public double AverageRating { get; set; }
     }
 
     public class SkillViewModel

@@ -33,6 +33,8 @@ namespace SkillBridge.Models
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<SkillRequest> SkillRequests { get; set; }
+        public DbSet<UserRating> UserRatings { get; set; }
+
 
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

@@ -70,6 +70,11 @@ namespace SkillBridge.Controllers
 
                 bool isPartialMatch = !isBestMatch && userTeachingSkills.Any(t => learningSkills.Select(ls => ls.SkillId).Contains(t.SkillId));
 
+                var userRating = db.UserRatings.FirstOrDefault(ur => ur.UserId == user.Id);
+                double averageRating = (userRating != null && userRating.RatingsReceived > 0)
+                    ? (double)userRating.AccumulatedRating / userRating.RatingsReceived
+                    : 0;
+
                 var profileVm = new PublicProfileViewModel
                 {
                     UserId = user.Id,
@@ -77,6 +82,8 @@ namespace SkillBridge.Controllers
                     Profession = userInfo?.Profession ?? "",
                     Location = userInfo?.Location ?? "",
                     Bio = userInfo?.Bio ?? "",
+                    AverageRating = averageRating,
+
                     SkillsToTeach = userTeachingSkills
                         .Select(us => new SkillViewModel
                         {
@@ -111,8 +118,15 @@ namespace SkillBridge.Controllers
                 else if (isPartialMatch) partialMatches.Add(profileVm);
             }
 
-            bestMatches = bestMatches.OrderByDescending(b => b.SkillsToTeach.Count).ToList();
-            partialMatches = partialMatches.OrderByDescending(p => p.SkillsToTeach.Count).ToList();
+            bestMatches = bestMatches
+                .OrderByDescending(b => b.AverageRating)
+                .ThenByDescending(b => b.SkillsToTeach.Count)
+                .ToList();
+
+            partialMatches = partialMatches
+                .OrderByDescending(p => p.AverageRating)
+                .ThenByDescending(p => p.SkillsToTeach.Count)
+                .ToList();
 
             var model = new ExploreViewModel
             {

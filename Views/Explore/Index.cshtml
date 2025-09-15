@@ -18,14 +18,19 @@
 {
         "Dhaka", "Chattogram", "Khulna", "Barishal", "Sylhet", "Mymensingh", "Rajshahi", "Rangpur"
     }.OrderBy(d => d).ToList();
-}
 
+    Func<double, string> getRatingClass = rating =>
+    {
+        if (rating >= 8) return "rating-deepblue";
+        if (rating >= 6.5) return "rating-green";
+        if (rating >= 4) return "rating-yellow";
+        return "rating-red";
+    };
+}
 
 @section Styles {
     <link rel="stylesheet" href="~/Styles/indexExplore.css" />
 }
-
-
 
 <div class="container mt-5 pt-4">
     <!-- Filters -->
@@ -66,13 +71,10 @@
     <div class="row row-cols-1 row-cols-md-3 g-4 mb-5" id="bestMatches">
         @foreach (var person in Model.BestMatches)
         {
-            var ratingClass = person.SkillsToTeach.Count > 3 ? "bg-primary" :
-                              person.SkillsToTeach.Count > 1 ? "bg-success" : "bg-danger";
-
             <div class="col person-card"
-                 data-offers="@string.Join(",", person.SkillsToTeach.Select(s=>s.SkillName))"
+                 data-offers="@string.Join(",", person.SkillsToTeach.Select(s => s.SkillName))"
                  data-location="@person.Location"
-                 data-maxstage="@person.SkillsToTeach.Max(s=>s.Stage)">
+                 data-maxstage="@person.SkillsToTeach.Max(s => s.Stage)">
                 <a href="@Url.Action("PublicProfile", "Profile", new { id = person.UserId })" class="card-link">
                     <div class="card shadow-sm h-100 hover-card">
                         <div class="card-body">
@@ -85,7 +87,9 @@
                                     <small class="text-muted">@person.Location</small>
                                 </div>
                                 <div class="col-3 text-end">
-                                    <span class="badge @ratingClass rating-badge">@person.SkillsToTeach.Count</span>
+                                    <div class="rating-badge @getRatingClass(person.AverageRating)">
+                                        @person.AverageRating.ToString("0.0")
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
@@ -116,13 +120,10 @@
     <div class="row row-cols-1 row-cols-md-4 g-4" id="partialMatches">
         @foreach (var person in Model.PartialMatches)
         {
-            var ratingClass = person.SkillsToTeach.Count > 3 ? "bg-primary" :
-                              person.SkillsToTeach.Count > 1 ? "bg-success" : "bg-danger";
-
             <div class="col person-card"
-                 data-offers="@string.Join(",", person.SkillsToTeach.Select(s=>s.SkillName))"
+                 data-offers="@string.Join(",", person.SkillsToTeach.Select(s => s.SkillName))"
                  data-location="@person.Location"
-                 data-maxstage="@person.SkillsToTeach.Max(s=>s.Stage)">
+                 data-maxstage="@person.SkillsToTeach.Max(s => s.Stage)">
                 <a href="@Url.Action("PublicProfile", "Profile", new { id = person.UserId })" class="card-link">
                     <div class="card shadow-sm h-100 hover-card">
                         <div class="card-body">
@@ -135,7 +136,9 @@
                                     <small class="text-muted">@person.Location</small>
                                 </div>
                                 <div class="col-3 text-end">
-                                    <span class="badge @ratingClass rating-badge">@person.SkillsToTeach.Count</span>
+                                    <div class="rating-badge @getRatingClass(person.AverageRating)">
+                                        @person.AverageRating.ToString("0.0")
+                                    </div>
                                 </div>
                             </div>
                             <div>

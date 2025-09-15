@@ -10,6 +10,10 @@
 <p>@Model.Profession | @Model.Location</p>
 <p>@Model.Bio</p>
 
+<h4>Average Rating</h4>
+<p>@Model.AverageRating.ToString("0.0") / 10</p>
+
+
 <h3>Skills @Model.FullName knows</h3>
 <ul id="skillsToTeachList">
     @foreach (var skill in Model.SkillsToTeach)
