@@ -41,6 +41,15 @@ else
                             <button class="btn btn-sm btn-secondary mark-read" data-id="@n.Id">Mark as Read</button>
                         </div>
                     }
+                    else if (n.Type == "Feedback" && !n.IsRead)
+                    {
+                        <div class="mt-2">
+                            <a href="@Url.Action("RateInteraction", "Interactions", new { interactionId = n.ReferenceId })" class="btn btn-sm btn-primary">
+                                Rate the Interaction
+                            </a>
+                            <button class="btn btn-sm btn-secondary mark-read" data-id="@n.Id">Mark as Read</button>
+                        </div>
+                    }
                 </div>
             </li>
         }

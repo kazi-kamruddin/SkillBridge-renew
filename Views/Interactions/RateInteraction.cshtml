@@ -1,36 +1,79 @@
-@model SkillBridge.Models.InteractionRatingViewModel
+@model SkillBridge.Models.InteractionFeedbackViewModel
 
-<h3>Rate your experience learning @Model.SkillName from @Model.FromUserName</h3>
+<h3>You completed an interaction with @Model.RatingModel.FromUserName</h3>
+
+<p>You learned: <strong>@Model.IndexModel.SkillYouLearn</strong></p>
+<p>You taught: <strong>@Model.IndexModel.SkillYouTeach</strong></p>
 
 <form id="rating-form">
-    <label>Rating (1-10):</label>
-    <input type="number" name="RatingValue" min="1" max="10" required />
-    <br />
-    <label>Comment (optional):</label>
-    <textarea name="Comment" maxlength="250"></textarea>
-    <br />
+    @Html.AntiForgeryToken()
+
+    @Html.Hidden("InteractionId", Model.RatingModel.InteractionId)
+    @Html.Hidden("ToUserId", Model.RatingModel.ToUserId)
+
+    <div class="form-group">
+        <label for="RatingValue">Rating (1-10):</label>
+        <input type="number" class="form-control" id="RatingValue" name="RatingValue" min="1" max="10" required />
+    </div>
+
+    <div class="form-group">
+        <label for="Comment">Comment (optional):</label>
+        <textarea class="form-control" id="Comment" name="Comment" maxlength="250"></textarea>
+    </div>
+
     <button type="submit" class="btn btn-primary">Submit Rating</button>
 </form>
 
-<div id="rating-result"></div>
+<div id="rating-result" class="mt-2"></div>
 
-<script>
+@section scripts {
+    <script>
+$(function () {
     $("#rating-form").submit(function (e) {
         e.preventDefault();
         var form = $(this);
+
         $.ajax({
             url: "@Url.Action("SubmitRating","Interactions")",
             type: "POST",
-            data: form.serialize(),
+            data: form.serialize(), // token @Html.AntiForgeryToken()
             success: function (response) {
-                if (response.success) {
-                    $("#rating-result").html("<span style='color:green'>Rating submitted successfully!</span>");
-                    form.remove();
-                } else {
-                    var errors = response.errors.map(err => err.ErrorMessage).join("<br>");
-                    $("#rating-result").html("<span style='color:red'>" + errors + "</span>");
+                if (response && response.success) {
+                    $("#rating-result").html("<span class='text-success'>Rating submitted successfully!</span>");
+                    setTimeout(function () {
+                        window.location.href = "@Url.Action("Index","Notifications")";
+                    }, 900);
+                    return;
                 }
+
+                var messages = [];
+
+                if (response) {
+                    if (response.errors) {
+                        if (Array.isArray(response.errors)) {
+                            if (response.errors.length && typeof response.errors[0] === "string") {
+                                messages = response.errors;
+                            } else {
+                                messages = response.errors.map(function (e) { return e.ErrorMessage || e; });
+                            }
+                        } else if (typeof response.errors === "string") {
+                            messages = [response.errors];
+                        }
+                    }
+                    if (messages.length === 0 && response.message) {
+                        messages = [response.message];
+                    }
+                }
+
+                if (messages.length === 0) messages = ["An error occurred."];
+
+                $("#rating-result").html("<span class='text-danger'>" + messages.join("<br>") + "</span>");
+            },
+            error: function () {
+                $("#rating-result").html("<span class='text-danger'>Network/server error.</span>");
             }
         });
     });
-</script>
+});
+    </script>
+}

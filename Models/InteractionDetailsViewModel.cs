@@ -45,4 +45,11 @@ namespace SkillBridge.Models
         public string Comment { get; set; }
     }
 
+    public class InteractionFeedbackViewModel
+    {
+        public InteractionRatingViewModel RatingModel { get; set; }
+        public InteractionIndexViewModel IndexModel { get; set; }
+    }
+
+
 }

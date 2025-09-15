@@ -1,9 +1,10 @@
-﻿using System.Linq;
-using System.Web.Mvc;
+﻿using Microsoft.AspNet.Identity;
 using SkillBridge.Models;
-using Microsoft.AspNet.Identity;
-using System.Data.Entity;
+using System;
 using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Web.Mvc;
 
 namespace SkillBridge.Controllers
 {
@@ -49,7 +50,6 @@ namespace SkillBridge.Controllers
 
         ////////////////////////////////////////////////////////////////////////////
         // Interaction Sessions Page
-
 
         public ActionResult Sessions(int id)
         {
@@ -174,7 +174,6 @@ namespace SkillBridge.Controllers
 
         ////////////////////////////////////////////////////////////////////////////
 
-
         // Show rating page
         public ActionResult RateInteraction(int interactionId)
         {
@@ -188,16 +187,27 @@ namespace SkillBridge.Controllers
 
             if (interaction == null) return HttpNotFound();
 
-            string skillName = interaction.User1Id == userId ? interaction.SkillFromTeacher.Name : interaction.SkillFromRequester.Name;
-            string fromUserName = interaction.User1Id == userId ? interaction.User2.UserName : interaction.User1.UserName;
-            string toUserId = userId;
-
-            var model = new InteractionRatingViewModel
+            var ratingModel = new InteractionRatingViewModel
             {
                 InteractionId = interaction.Id,
-                SkillName = skillName,
-                FromUserName = fromUserName,
-                ToUserId = toUserId
+                SkillName = interaction.User1Id == userId ? interaction.SkillFromTeacher.Name : interaction.SkillFromRequester.Name,
+                FromUserName = interaction.User1Id == userId ? interaction.User2.UserName : interaction.User1.UserName,
+                ToUserId = userId
+            };
+
+            var indexModel = new InteractionIndexViewModel
+            {
+                InteractionId = interaction.Id,
+                OtherUserName = ratingModel.FromUserName,
+                SkillYouLearn = interaction.User1Id == userId ? interaction.SkillFromRequester.Name : interaction.SkillFromTeacher.Name,
+                SkillYouTeach = interaction.User1Id == userId ? interaction.SkillFromTeacher.Name : interaction.SkillFromRequester.Name,
+                Status = interaction.Status
+            };
+
+            var model = new InteractionFeedbackViewModel
+            {
+                RatingModel = ratingModel,
+                IndexModel = indexModel
             };
 
             return View(model);
@@ -205,35 +215,54 @@ namespace SkillBridge.Controllers
 
 
 
+
         ////////////////////////////////////////////////////////////////////////////
         // Submit rating via AJAX
-
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult SubmitRating(InteractionRatingViewModel model)
         {
             if (!ModelState.IsValid)
-                return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors) });
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToArray();
+                return Json(new { success = false, errors });
+            }
+
+            var currentUserId = User.Identity.GetUserId();
+            var interaction = db.Interactions.Find(model.InteractionId);
+            if (interaction == null)
+                return Json(new { success = false, errors = new[] { "Interaction not found." } });
+
+            var recipientId = interaction.User1Id == currentUserId ? interaction.User2Id : interaction.User1Id;
 
             var rating = new Rating
             {
                 InteractionId = model.InteractionId,
-                FromUserId = model.ToUserId,
-                ToUserId = db.Interactions.Find(model.InteractionId).User1Id == model.ToUserId
-                           ? db.Interactions.Find(model.InteractionId).User2Id
-                           : db.Interactions.Find(model.InteractionId).User1Id,
+                FromUserId = currentUserId,
+                ToUserId = recipientId,
                 RatingValue = model.RatingValue,
-                Comment = model.Comment
+                Comment = model.Comment,
+                CreatedAt = DateTime.UtcNow
             };
 
             db.Ratings.Add(rating);
 
-            var notif = db.Notifications.FirstOrDefault(n => n.UserId == model.ToUserId && n.Type == "Feedback" && n.ReferenceId == model.InteractionId);
+            var recipientStats = db.UserRatings.FirstOrDefault(ur => ur.UserId == recipientId);
+            if (recipientStats != null)
+            {
+                recipientStats.RatingsReceived += 1;
+                recipientStats.AccumulatedRating += rating.RatingValue;
+            }
+
+            var notif = db.Notifications.FirstOrDefault(n =>
+                n.UserId == currentUserId && n.Type == "Feedback" && n.ReferenceId == model.InteractionId);
             if (notif != null) db.Notifications.Remove(notif);
 
             db.SaveChanges();
 
             return Json(new { success = true });
         }
+
 
 
 
@@ -321,15 +350,18 @@ namespace SkillBridge.Controllers
             {
                 UserId = interaction.User1Id,
                 Type = "Feedback",
-                Message = $"Rate your experience learning {interaction.SkillFromTeacher.Name} from {interaction.User2.UserName}"
+                ReferenceId = interaction.Id,
+                Message = $"You have successfully completed the interaction with {interaction.User2.UserName}. You taught {interaction.SkillFromTeacher.Name} and learned {interaction.SkillFromRequester.Name}. Click below to rate this interaction."
             };
 
             var notif2 = new Notification
             {
                 UserId = interaction.User2Id,
                 Type = "Feedback",
-                Message = $"Rate your experience learning {interaction.SkillFromRequester.Name} from {interaction.User1.UserName}"
+                ReferenceId = interaction.Id,
+                Message = $"You have successfully completed the interaction with {interaction.User1.UserName}. You taught {interaction.SkillFromRequester.Name} and learned {interaction.SkillFromTeacher.Name}. Click below to rate this interaction."
             };
+
 
             db.Notifications.Add(notif1);
             db.Notifications.Add(notif2);
