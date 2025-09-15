@@ -137,10 +137,15 @@ namespace SkillBridge.Controllers
             UpdateUserSkill(interaction.User2Id, interaction.SkillFromTeacherId, interaction);
 
             interaction.Status = "Completed";
+
+            var user1Rating = db.UserRatings.FirstOrDefault(r => r.UserId == interaction.User1Id);
+            var user2Rating = db.UserRatings.FirstOrDefault(r => r.UserId == interaction.User2Id);
+
+            if (user1Rating != null) user1Rating.InteractionsCompleted += 1;
+            if (user2Rating != null) user2Rating.InteractionsCompleted += 1;
+
             db.SaveChanges();
-
             CreateFeedbackNotification(interaction);
-
             return RedirectToAction("Index");
         }
 

@@ -202,6 +202,10 @@
     <Compile Include="Migrations\202509131712157_RenameInteractionColumns.Designer.cs">
       <DependentUpon>202509131712157_RenameInteractionColumns.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509150930470_AddUserRatings.cs" />
+    <Compile Include="Migrations\202509150930470_AddUserRatings.Designer.cs">
+      <DependentUpon>202509150930470_AddUserRatings.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\CompleteProfileViewModel.cs" />
@@ -214,6 +218,7 @@
     <Compile Include="Models\SkillModels.cs" />
     <Compile Include="Models\SkillRequest.cs" />
     <Compile Include="Models\UserInfoModels.cs" />
+    <Compile Include="Models\UserRatings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -352,6 +357,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509131712157_RenameInteractionColumns.resx">
       <DependentUpon>202509131712157_RenameInteractionColumns.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509150930470_AddUserRatings.resx">
+      <DependentUpon>202509150930470_AddUserRatings.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

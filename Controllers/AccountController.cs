@@ -104,12 +104,28 @@ namespace SkillBridge.Controllers
             if (result.Succeeded)
             {
                 await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+
+                using (var db = new ApplicationDbContext())
+                {
+                    var userRating = new UserRating
+                    {
+                        UserId = user.Id,
+                        InteractionsCompleted = 0,
+                        RatingsReceived = 0,
+                        AccumulatedRating = 0
+                    };
+
+                    db.UserRatings.Add(userRating);
+                    db.SaveChanges();
+                }
+
                 return RedirectToAction("Index", "CompleteProfile");
             }
 
             AddErrors(result);
             return View(model);
         }
+
 
 
 

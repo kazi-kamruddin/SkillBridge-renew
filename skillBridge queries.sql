@@ -95,3 +95,4 @@ select * from dbo.InteractionSessions;
 select * from dbo.Ratings;
 select * from dbo.Notifications;
 select * from dbo.SkillRequests;
+select * from dbo.u
