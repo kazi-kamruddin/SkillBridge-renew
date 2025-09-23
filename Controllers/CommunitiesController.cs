@@ -148,7 +148,7 @@ namespace SkillBridge.Controllers
             return RedirectToAction("Landing", new { id = model.CommunityId });
         }
 
-        
+
 
         public ActionResult PostDetails(int id)
         {
@@ -178,21 +178,34 @@ namespace SkillBridge.Controllers
                         Content = c.Content,
                         CreatedByUserName = db.Users.Find(c.CreatedByUserId)?.UserName ?? "Unknown",
                         CreatedAt = c.CreatedAt
-                    }).ToList()
+                    }).ToList(),
+                NewComment = new CommunityCommentCreateModel
+                {
+                    PostId = post.Id   
+                }
             };
 
             return View(model);
         }
 
-        
 
-       
+
+        //[HttpGet]
+        //public ActionResult CreateComment()
+        //{
+        //    return RedirectToAction("Index");
+        //}
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult CreateComment(CommunityCommentCreateModel model)
         {
             var currentUserId = User.Identity.GetUserId();
-            var post = db.CommunityPosts.Find(model.PostId);
+
+            var post = db.CommunityPosts
+                .Include(p => p.Community)
+                .FirstOrDefault(p => p.Id == model.PostId);
+
             if (post == null) return HttpNotFound();
 
             bool isMember = db.UserSkills.Any(us => us.UserId == currentUserId && us.SkillId == post.Community.SkillId);
@@ -211,5 +224,6 @@ namespace SkillBridge.Controllers
 
             return RedirectToAction("PostDetails", new { id = model.PostId });
         }
+
     }
 }

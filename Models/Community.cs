@@ -87,9 +87,12 @@ namespace SkillBridge.Models
         public string CreatedByUserName { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsMember { get; set; }
+
         public List<CommunityCommentViewModel> Comments { get; set; } = new List<CommunityCommentViewModel>();
+
         public CommunityCommentCreateModel NewComment { get; set; } = new CommunityCommentCreateModel();
     }
+
 
     public class CommunityCommentViewModel
     {

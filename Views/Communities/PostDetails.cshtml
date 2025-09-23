@@ -31,18 +31,18 @@
     {
         <section class="comment-form mt-3">
             <h5>Add Comment</h5>
-            @using (Html.BeginForm("CreateComment", "Communities", FormMethod.Post))
-            {
+
+            <form action="/Communities/CreateComment" method="post">
                 @Html.AntiForgeryToken()
-                @Html.HiddenFor(m => m.NewComment.PostId, new { Value = Model.PostId })
+                <input type="hidden" name="PostId" value="@Model.PostId" />
 
                 <div class="form-group mb-2">
-                    @Html.TextAreaFor(m => m.NewComment.Content, 3, 60, new { @class = "form-control", placeholder = "Write a comment..." })
-                    @Html.ValidationMessageFor(m => m.NewComment.Content, "", new { @class = "text-danger" })
+                    <textarea name="Content" class="form-control" placeholder="Write a comment..." rows="3" required></textarea>
+                    @Html.ValidationMessage("Content", "", new { @class = "text-danger" })
                 </div>
 
                 <button type="submit" class="btn btn-secondary">Add Comment</button>
-            }
+            </form>
         </section>
     }
 </main>
