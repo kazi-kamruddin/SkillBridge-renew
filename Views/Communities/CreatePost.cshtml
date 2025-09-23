@@ -1,0 +1,33 @@
+@model SkillBridge.Models.CommunityPostCreateModel
+@{
+    ViewBag.Title = "Create Post";
+}
+
+<main class="container mt-4">
+    <h2>Create Post</h2>
+
+    @using (Html.BeginForm("CreatePost", "Communities", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(m => m.CommunityId)
+
+        <div class="form-group mb-2">
+            @Html.LabelFor(m => m.Title)
+            @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "Post Title" })
+            @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group mb-2">
+            @Html.LabelFor(m => m.Content)
+            @Html.TextAreaFor(m => m.Content, 5, 60, new { @class = "form-control", placeholder = "Write your post..." })
+            @Html.ValidationMessageFor(m => m.Content, "", new { @class = "text-danger" })
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-2">Create Post</button>
+        <a href="@Url.Action("Landing", "Communities", new { id = Model.CommunityId })" class="btn btn-secondary mt-2 ms-2">Cancel</a>
+    }
+</main>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

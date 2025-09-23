@@ -1,0 +1,52 @@
+@model SkillBridge.Models.PostDetailsViewModel
+@{
+    ViewBag.Title = Model.Title;
+}
+
+<main class="container mt-4">
+    <h2>@Model.Title</h2>
+    <p class="text-muted">By @Model.CreatedByUserName on @Model.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+    <hr />
+    <p>@Model.Content</p>
+
+    <section class="comments mt-4">
+        <h4>Comments (@Model.Comments.Count)</h4>
+        @if (Model.Comments.Any())
+        {
+            foreach (var c in Model.Comments.OrderBy(c => c.CreatedAt))
+            {
+                <div class="card mb-2 p-2">
+                    <p>@c.Content</p>
+                    <small class="text-muted">By @c.CreatedByUserName on @c.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No comments yet.</p>
+        }
+    </section>
+
+    @if (Model.IsMember)
+    {
+        <section class="comment-form mt-3">
+            <h5>Add Comment</h5>
+
+            <form action="/Communities/CreateComment" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="PostId" value="@Model.PostId" />
+
+                <div class="form-group mb-2">
+                    <textarea name="Content" class="form-control" placeholder="Write a comment..." rows="3" required></textarea>
+                    @Html.ValidationMessage("Content", "", new { @class = "text-danger" })
+                </div>
+
+                <button type="submit" class="btn btn-secondary">Add Comment</button>
+            </form>
+        </section>
+    }
+</main>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

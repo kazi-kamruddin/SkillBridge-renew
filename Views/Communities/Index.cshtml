@@ -1,0 +1,73 @@
+@model SkillBridge.Models.CommunityIndexViewModel
+@{
+    ViewBag.Title = "Communities";
+}
+
+<main class="container mt-4">
+    <h2>@ViewBag.Title</h2>
+
+    <!-- Skills You Know -->
+    @if (Model.SkillsYouKnow.Any())
+    {
+        <section class="community-section">
+            <h3>Skills You Know</h3>
+            <div class="community-grid">
+                @foreach (var c in Model.SkillsYouKnow)
+                {
+                    <a href="@Url.Action("Landing", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-primary m-1">
+                        @c.SkillName
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- Skills You Want to Learn -->
+    @if (Model.SkillsYouWantToLearn.Any())
+    {
+        <section class="community-section mt-4">
+            <h3>Skills You Want to Learn</h3>
+            <div class="community-grid">
+                @foreach (var c in Model.SkillsYouWantToLearn)
+                {
+                    <a href="@Url.Action("Landing", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-success m-1">
+                        @c.SkillName
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- Other Communities -->
+    @if (Model.OtherCommunities.Any())
+    {
+        <section class="community-section mt-4">
+            <h3>Other Communities</h3>
+            <div class="community-grid">
+                @foreach (var c in Model.OtherCommunities)
+                {
+                    <a href="@Url.Action("Landing", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-secondary m-1">
+                        @c.SkillName
+                    </a>
+                }
+            </div>
+        </section>
+    }
+</main>
+
+<style>
+    .community-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .community-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .community-section h3 {
+        margin-bottom: 10px;
+    }
+</style>

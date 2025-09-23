@@ -34,6 +34,10 @@ namespace SkillBridge.Models
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<SkillRequest> SkillRequests { get; set; }
         public DbSet<UserRating> UserRatings { get; set; }
+        public DbSet<Community> Communities { get; set; }
+        public DbSet<CommunityPost> CommunityPosts { get; set; }
+        public DbSet<CommunityComment> CommunityComments { get; set; }
+
 
 
 

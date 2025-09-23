@@ -254,6 +254,16 @@ namespace SkillBridge.Controllers
                 recipientStats.AccumulatedRating += rating.RatingValue;
             }
 
+            db.Notifications.Add(new Notification
+            {
+                UserId = recipientId,
+                Type = "Info",
+                ReferenceId = model.InteractionId,
+                Message = $"{User.Identity.Name} rated you {model.RatingValue}/10. Comment: \"{model.Comment}\"",
+                CreatedAt = DateTime.Now,
+                IsRead = false
+            });
+
             var notif = db.Notifications.FirstOrDefault(n =>
                 n.UserId == currentUserId && n.Type == "Feedback" && n.ReferenceId == model.InteractionId);
             if (notif != null) db.Notifications.Remove(notif);

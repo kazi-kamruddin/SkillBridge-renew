@@ -1,0 +1,35 @@
+@model SkillBridge.Models.CommunityLandingViewModel
+@{
+    ViewBag.Title = Model.CommunityName + " - Community";
+}
+
+<main class="container mt-4">
+    <h2>@Model.CommunityName (@Model.SkillName)</h2>
+
+    @if (Model.IsMember)
+    {
+        <div class="text-end mb-3">
+            <a href="@Url.Action("CreatePost", "Communities", new { communityId = Model.CommunityId })" class="btn btn-success">
+                Create Post
+            </a>
+        </div>
+    }
+
+    <section class="posts-section">
+        @if (Model.Posts.Any())
+        {
+            <div class="list-group">
+                @foreach (var post in Model.Posts.OrderByDescending(p => p.CreatedAt))
+                {
+                    <a href="@Url.Action("PostDetails", "Communities", new { id = post.PostId })" class="list-group-item list-group-item-action">
+                        @post.Title <small class="text-muted">by @post.CreatedByUserName on @post.CreatedAt.ToString("MMM dd, yyyy")</small>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <p>No posts yet. Be the first to post!</p>
+        }
+    </section>
+</main>
