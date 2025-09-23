@@ -169,6 +169,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\CommunitiesController.cs" />
     <Compile Include="Controllers\CompleteProfileController.cs" />
     <Compile Include="Controllers\ExploreController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -206,8 +207,17 @@
     <Compile Include="Migrations\202509150930470_AddUserRatings.Designer.cs">
       <DependentUpon>202509150930470_AddUserRatings.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202509231229324_AddCommunityFeature.cs" />
+    <Compile Include="Migrations\202509231229324_AddCommunityFeature.Designer.cs">
+      <DependentUpon>202509231229324_AddCommunityFeature.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202509231235280_AddCommunitiesFeature.cs" />
+    <Compile Include="Migrations\202509231235280_AddCommunitiesFeature.Designer.cs">
+      <DependentUpon>202509231235280_AddCommunitiesFeature.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\Community.cs" />
     <Compile Include="Models\CompleteProfileViewModel.cs" />
     <Compile Include="Models\ExploreViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
@@ -263,6 +273,7 @@
     <Content Include="Scripts\modernizr-2.8.3.js" />
     <Content Include="Styles\about.css" />
     <Content Include="Styles\changePassword.css" />
+    <Content Include="Styles\communities.css" />
     <Content Include="Styles\contacts.css" />
     <Content Include="Styles\indexCompleteProfile.css" />
     <Content Include="Styles\indexExplore.css" />
@@ -308,6 +319,7 @@
     <Content Include="Views\Interactions\RateInteraction.cshtml" />
     <Content Include="Views\Notifications\Index.cshtml" />
     <Content Include="Views\Interactions\Sessions.cshtml" />
+    <Content Include="Views\Communities\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -360,6 +372,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202509150930470_AddUserRatings.resx">
       <DependentUpon>202509150930470_AddUserRatings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509231229324_AddCommunityFeature.resx">
+      <DependentUpon>202509231229324_AddCommunityFeature.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202509231235280_AddCommunitiesFeature.resx">
+      <DependentUpon>202509231235280_AddCommunitiesFeature.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
