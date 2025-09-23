@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+using System.ComponentModel.DataAnnotations;
 
 namespace SkillBridge.Models
 {
@@ -12,12 +11,9 @@ namespace SkillBridge.Models
         public string Name { get; set; }
         public string Description { get; set; }
 
-
         public virtual Skill Skill { get; set; }
         public virtual ICollection<CommunityPost> Posts { get; set; }
     }
-
-
 
     public class CommunityPost
     {
@@ -34,8 +30,6 @@ namespace SkillBridge.Models
         public virtual ICollection<CommunityComment> Comments { get; set; }
     }
 
-
-
     public class CommunityComment
     {
         public int Id { get; set; }
@@ -48,7 +42,9 @@ namespace SkillBridge.Models
         public virtual ApplicationUser CreatedByUser { get; set; }
     }
 
-
+    // =====================================
+    // VIEWMODELS
+    // =====================================
 
     public class CommunityIndexViewModel
     {
@@ -62,6 +58,68 @@ namespace SkillBridge.Models
         public int CommunityId { get; set; }
         public string SkillName { get; set; }
         public string CategoryName { get; set; }
-        public bool IsMember { get; set; } 
+        public bool IsMember { get; set; }
+    }
+
+    public class CommunityLandingViewModel
+    {
+        public int CommunityId { get; set; }
+        public string CommunityName { get; set; }
+        public string SkillName { get; set; }
+        public bool IsMember { get; set; }
+        public List<CommunityPostListItemViewModel> Posts { get; set; } = new List<CommunityPostListItemViewModel>();
+    }
+
+    public class CommunityPostListItemViewModel
+    {
+        public int PostId { get; set; }
+        public string Title { get; set; }
+        public string CreatedByUserName { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class PostDetailsViewModel
+    {
+        public int PostId { get; set; }
+        public int CommunityId { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public string CreatedByUserName { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool IsMember { get; set; }
+        public List<CommunityCommentViewModel> Comments { get; set; } = new List<CommunityCommentViewModel>();
+        public CommunityCommentCreateModel NewComment { get; set; } = new CommunityCommentCreateModel();
+    }
+
+    public class CommunityCommentViewModel
+    {
+        public int CommentId { get; set; }
+        public string Content { get; set; }
+        public string CreatedByUserName { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class CommunityCommentCreateModel
+    {
+        [Required]
+        public int PostId { get; set; }
+
+        [Required]
+        [StringLength(1000)]
+        public string Content { get; set; }
+    }
+
+    public class CommunityPostCreateModel
+    {
+        [Required]
+        public int CommunityId { get; set; }
+
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+
+        [Required]
+        [StringLength(2000)]
+        public string Content { get; set; }
     }
 }

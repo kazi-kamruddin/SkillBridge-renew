@@ -3,10 +3,6 @@
     ViewBag.Title = "Communities";
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/Styles/communities.css" />
-}
-
 <main class="container mt-4">
     <h2>@ViewBag.Title</h2>
 
@@ -18,7 +14,7 @@
             <div class="community-grid">
                 @foreach (var c in Model.SkillsYouKnow)
                 {
-                    <a href="@Url.Action("Details", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-primary m-1">
+                    <a href="@Url.Action("Landing", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-primary m-1">
                         @c.SkillName
                     </a>
                 }
@@ -26,7 +22,7 @@
         </section>
     }
 
-    <!-- Skills You Want To Learn -->
+    <!-- Skills You Want to Learn -->
     @if (Model.SkillsYouWantToLearn.Any())
     {
         <section class="community-section mt-4">
@@ -34,7 +30,7 @@
             <div class="community-grid">
                 @foreach (var c in Model.SkillsYouWantToLearn)
                 {
-                    <a href="@Url.Action("Details", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-success m-1">
+                    <a href="@Url.Action("Landing", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-success m-1">
                         @c.SkillName
                     </a>
                 }
@@ -50,7 +46,7 @@
             <div class="community-grid">
                 @foreach (var c in Model.OtherCommunities)
                 {
-                    <a href="@Url.Action("Details", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-secondary m-1">
+                    <a href="@Url.Action("Landing", "Communities", new { id = c.CommunityId })" class="community-btn btn btn-secondary m-1">
                         @c.SkillName
                     </a>
                 }

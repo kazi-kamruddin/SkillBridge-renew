@@ -320,6 +320,9 @@
     <Content Include="Views\Notifications\Index.cshtml" />
     <Content Include="Views\Interactions\Sessions.cshtml" />
     <Content Include="Views\Communities\Index.cshtml" />
+    <Content Include="Views\Communities\PostDetails.cshtml" />
+    <Content Include="Views\Communities\Landing.cshtml" />
+    <Content Include="Views\Communities\CreatePost.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
