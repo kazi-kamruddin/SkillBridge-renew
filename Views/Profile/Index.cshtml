@@ -13,6 +13,14 @@
 
     <p class="text-success">@ViewBag.StatusMessage</p>
 
+    <div class="mb-3 text-center">
+        <img src="@Model.ProfileImageUrl"
+             alt="Profile Picture"
+             class="rounded-circle"
+             style="width:150px; height:150px; object-fit:cover; border:2px solid #ccc;" />
+    </div>
+
+
     <div class="mb-3">
         <h4>Personal Information</h4>
         <hr />
@@ -40,8 +48,16 @@
     <div class="mb-3">
         <h4>Ratings</h4>
         <hr />
-        <p><strong>Average Rating:</strong> @Model.AverageRating.ToString("0.0") / 10</p>
+        <p>
+            <strong>Average Rating:</strong>
+            @Model.AverageRating.ToString("0.0") / 10
+            (out of @Model.RatingsReceived rated interaction@(Model.RatingsReceived == 1 ? "" : "s"))
+        </p>
+        <p>
+            Completed total @Model.InteractionsCompleted interaction@(Model.InteractionsCompleted == 1 ? "" : "s")
+        </p>
     </div>
+
 
     <div class="mb-3">
         <h4>Teaching Skills</h4>

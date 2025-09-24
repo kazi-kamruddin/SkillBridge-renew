@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
+using SkillBridge.Helpers;
 
 namespace SkillBridge.Controllers
 {
@@ -83,6 +84,7 @@ namespace SkillBridge.Controllers
                     Location = userInfo?.Location ?? "",
                     Bio = userInfo?.Bio ?? "",
                     AverageRating = averageRating,
+                    ProfileImageUrl = ProfileImageHelper.GetRandomProfileImage(),
 
                     SkillsToTeach = userTeachingSkills
                         .Select(us => new SkillViewModel

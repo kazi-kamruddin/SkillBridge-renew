@@ -5,13 +5,22 @@
     <link rel="stylesheet" href="~/Styles/publicProfile.css" />
 }
 
-<h2>@Model.FullName’s Profile</h2>
+<div class="profile-header">
+    <img src="@Model.ProfileImageUrl" alt="@Model.FullName" class="rounded-circle" width="120" height="120" />
+    <h2>@Model.FullName’s Profile</h2>
+</div>
 
 <p>@Model.Profession | @Model.Location</p>
 <p>@Model.Bio</p>
 
 <h4>Average Rating</h4>
-<p>@Model.AverageRating.ToString("0.0") / 10</p>
+<p>
+    @Model.AverageRating.ToString("0.0") / 10
+    (out of @Model.RatingsReceived rated interaction@(Model.RatingsReceived == 1 ? "" : "s"))
+</p>
+<p>
+    Completed total @Model.InteractionsCompleted interaction@(Model.InteractionsCompleted == 1 ? "" : "s")
+</p>
 
 
 <h3>Skills @Model.FullName knows</h3>
