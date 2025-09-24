@@ -248,9 +248,31 @@ namespace SkillBridge.Controllers
 
 
 
+        ////////////////////////////////////////////////////////////////////////////
+        [HttpPost]
+        public JsonResult MarkAllAsRead()
+        {
+            var userId = User.Identity.GetUserId();
+            var unreadNotifications = _context.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToList();
+
+            if (!unreadNotifications.Any())
+                return Json(new { success = true });
+
+            foreach (var n in unreadNotifications)
+            {
+                n.IsRead = true;
+            }
+
+            _context.SaveChanges();
+            return Json(new { success = true });
+        }
+
+
 
         ////////////////////////////////////////////////////////////////////////////
-        
+
         [HttpGet]
         public JsonResult GetRealtimeNotifications()
         {

@@ -3,7 +3,6 @@
     ViewBag.Title = "Notifications";
 }
 
-<h2>Notifications</h2>
 
 @if (!Model.Any())
 {
@@ -11,6 +10,11 @@
 }
 else
 {
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Notifications</h2>
+        <button id="markAllReadBtn" class="btn btn-sm btn-primary">Mark All as Read</button>
+    </div> 
+
     <ul class="list-group">
         @foreach (var n in Model)
         {
@@ -66,7 +70,7 @@ else
                     if (res.success) {
                         var li = btn.closest("li");
                         li.removeClass("list-group-item-info");
-                        btn.parent().remove(); 
+                        btn.parent().remove();
                     }
                 });
             });
@@ -123,6 +127,22 @@ else
                     }
                 });
             });
+
+            // Mark all notifications as read
+            $("#markAllReadBtn").click(function () {
+                if (!confirm("Mark all notifications as read?")) return;
+
+                $.post("/Notifications/MarkAllAsRead", function (res) {
+                    if (res.success) {
+                        $("li.list-group-item-info").removeClass("list-group-item-info");
+                        $(".mark-read, .accept-btn, .decline-btn, .initialize-btn").parent().remove();
+                        $("#notificationBadge").text("0");
+                    } else {
+                        alert("Failed to mark all as read.");
+                    }
+                });
+            });
+
         });
     </script>
 }
