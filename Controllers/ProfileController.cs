@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
+using SkillBridge.Helpers;
 using SkillBridge.Models;
 using System;
 using System.Collections.Generic;
@@ -85,7 +86,8 @@ namespace SkillBridge.Controllers
                 LearningSkills = learningSkills,
                 AverageRating = averageRating,
                 RatingsReceived = ratingsReceived,
-                InteractionsCompleted = interactionsCompleted
+                InteractionsCompleted = interactionsCompleted,
+                ProfileImageUrl = ProfileImageHelper.GetRandomProfileImage()
             };
 
             return View(model);
@@ -297,7 +299,8 @@ namespace SkillBridge.Controllers
                     }).ToList(),
                 AverageRating = averageRating,
                 RatingsReceived = ratingsReceived,
-                InteractionsCompleted = interactionsCompleted
+                InteractionsCompleted = interactionsCompleted,
+                ProfileImageUrl = ProfileImageHelper.GetRandomProfileImage()
             };
 
             return View(model);

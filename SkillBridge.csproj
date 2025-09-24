@@ -179,6 +179,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\ProfileImageHelper.cs" />
     <Compile Include="Migrations\202509101925387_RemoveNameFromUser.cs" />
     <Compile Include="Migrations\202509101925387_RemoveNameFromUser.Designer.cs">
       <DependentUpon>202509101925387_RemoveNameFromUser.cs</DependentUpon>
@@ -249,6 +250,9 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\profilePictures\avatar1.jpg" />
+    <Content Include="Content\profilePictures\avatar2.jpg" />
+    <Content Include="Content\profilePictures\avatar3.png" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />

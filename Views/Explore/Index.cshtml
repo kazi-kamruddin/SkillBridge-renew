@@ -80,7 +80,7 @@
                         <div class="card-body">
                             <div class="row align-items-center mb-3">
                                 <div class="col-3 text-center">
-                                    <img src="~/Content/assests/avatar2.jpg" class="rounded-circle" width="70" height="70" />
+                                    <img src="@Url.Content(person.ProfileImageUrl)" class="rounded-circle" width="70" height="70" />
                                 </div>
                                 <div class="col-6">
                                     <h5 class="mb-0">@person.FullName</h5>
@@ -129,7 +129,8 @@
                         <div class="card-body">
                             <div class="row align-items-center mb-3">
                                 <div class="col-3 text-center">
-                                    <img src="~/Content/assests/avatar2.jpg" class="rounded-circle" width="60" height="60" />
+                                    <img src="@Url.Content(person.ProfileImageUrl)" class="rounded-circle" width="60" height="60" />
+
                                 </div>
                                 <div class="col-6">
                                     <h5 class="mb-0">@person.FullName</h5>
