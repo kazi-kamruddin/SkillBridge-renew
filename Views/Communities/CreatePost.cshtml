@@ -1,31 +1,50 @@
+
 @model SkillBridge.Models.CommunityPostCreateModel
 @{
     ViewBag.Title = "Create Post";
 }
 
-<main class="container mt-4">
-    <h2>Create Post</h2>
+<main class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create a New Post</h4>
+                </div>
+                <div class="card-body p-4">
+                    @using (Html.BeginForm("CreatePost", "Communities", FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.CommunityId)
 
-    @using (Html.BeginForm("CreatePost", "Communities", FormMethod.Post))
-    {
-        @Html.AntiForgeryToken()
-        @Html.HiddenFor(m => m.CommunityId)
+                        <!-- Title -->
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.Title, new { @class = "form-label fw-bold" })
+                            @Html.TextBoxFor(m => m.Title, new { @class = "form-control form-control-lg", placeholder = "Enter a catchy title..." })
+                            @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger small" })
+                        </div>
 
-        <div class="form-group mb-2">
-            @Html.LabelFor(m => m.Title)
-            @Html.TextBoxFor(m => m.Title, new { @class = "form-control", placeholder = "Post Title" })
-            @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                        <!-- Content -->
+                        <div class="mb-3">
+                            @Html.LabelFor(m => m.Content, new { @class = "form-label fw-bold" })
+                            @Html.TextAreaFor(m => m.Content, 6, 60, new { @class = "form-control", placeholder = "Write your post content here..." })
+                            @Html.ValidationMessageFor(m => m.Content, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="@Url.Action("Landing", "Communities", new { id = Model.CommunityId })" class="btn btn-outline-secondary me-2">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send-fill me-1"></i> Create Post
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-
-        <div class="form-group mb-2">
-            @Html.LabelFor(m => m.Content)
-            @Html.TextAreaFor(m => m.Content, 5, 60, new { @class = "form-control", placeholder = "Write your post..." })
-            @Html.ValidationMessageFor(m => m.Content, "", new { @class = "text-danger" })
-        </div>
-
-        <button type="submit" class="btn btn-primary mt-2">Create Post</button>
-        <a href="@Url.Action("Landing", "Communities", new { id = Model.CommunityId })" class="btn btn-secondary mt-2 ms-2">Cancel</a>
-    }
+    </div>
 </main>
 
 @section Scripts {
