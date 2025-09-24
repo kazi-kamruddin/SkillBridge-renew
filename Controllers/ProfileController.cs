@@ -64,9 +64,13 @@ namespace SkillBridge.Controllers
             var learningSkills = userSkills.Where(s => s.Status == "Learning").ToList();
 
             var userRatings = db.UserRatings.FirstOrDefault(ur => ur.UserId == userId);
+
             double averageRating = (userRatings != null && userRatings.RatingsReceived > 0)
                 ? (double)userRatings.AccumulatedRating / userRatings.RatingsReceived
                 : 0;
+
+            int ratingsReceived = userRatings?.RatingsReceived ?? 0;
+            int interactionsCompleted = userRatings?.InteractionsCompleted ?? 0;
 
             var model = new IndexViewModel
             {
@@ -79,7 +83,9 @@ namespace SkillBridge.Controllers
                 Age = userInfo?.Age ?? 0,
                 TeachingSkills = teachingSkills,
                 LearningSkills = learningSkills,
-                AverageRating = averageRating
+                AverageRating = averageRating,
+                RatingsReceived = ratingsReceived,
+                InteractionsCompleted = interactionsCompleted
             };
 
             return View(model);
@@ -264,9 +270,13 @@ namespace SkillBridge.Controllers
             }
 
             var userRatings = db.UserRatings.FirstOrDefault(ur => ur.UserId == id);
+
             double averageRating = (userRatings != null && userRatings.RatingsReceived > 0)
                 ? (double)userRatings.AccumulatedRating / userRatings.RatingsReceived
                 : 0;
+
+            int ratingsReceived = userRatings?.RatingsReceived ?? 0;
+            int interactionsCompleted = userRatings?.InteractionsCompleted ?? 0;
 
             var model = new PublicProfileViewModel
             {
@@ -285,7 +295,9 @@ namespace SkillBridge.Controllers
                         Stage = us.KnownUpToStage ?? 0,
                         RequestStatus = "None"
                     }).ToList(),
-                AverageRating = averageRating
+                AverageRating = averageRating,
+                RatingsReceived = ratingsReceived,
+                InteractionsCompleted = interactionsCompleted
             };
 
             return View(model);

@@ -11,7 +11,13 @@
 <p>@Model.Bio</p>
 
 <h4>Average Rating</h4>
-<p>@Model.AverageRating.ToString("0.0") / 10</p>
+<p>
+    @Model.AverageRating.ToString("0.0") / 10
+    (out of @Model.RatingsReceived rated interaction@(Model.RatingsReceived == 1 ? "" : "s"))
+</p>
+<p>
+    Completed total @Model.InteractionsCompleted interaction@(Model.InteractionsCompleted == 1 ? "" : "s")
+</p>
 
 
 <h3>Skills @Model.FullName knows</h3>

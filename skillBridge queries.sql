@@ -21,6 +21,9 @@ select 'UserRatings' AS TableName, * from dbo.UserRatings;
 SELECT 'AspNetUsers' AS TableName, * FROM dbo.AspNetUsers; 
 SELECT 'Notifications' AS TableName, * FROM dbo.Notifications; 
 SELECT 'Ratings' AS TableName, * FROM dbo.Ratings; 
+SELECT 'Communities' AS TableName, * FROM dbo.Communities; 
+SELECT 'Posts' AS TableName, * FROM dbo.CommunityPosts; 
+SELECT 'Comments' AS TableName, * FROM dbo.CommunityComments; 
 
 select * from dbo.AspNetUsers where Email='q@q.com' or Email='superman@g.com';
 select * from dbo.SkillRequests;
@@ -104,3 +107,25 @@ select * from dbo.Notifications;
 select * from dbo.SkillRequests;
 select * from dbo.UserRatings;
 select * from dbo.AspNetUsers;
+
+
+-- Insert a post by Kazi in Python community
+INSERT INTO CommunityPosts (CommunityId, CreatedByUserId, Title, Content, CreatedAt, UpdatedAt)
+VALUES (
+    1, -- Python community
+    'f1e2a8a3-44f5-4c33-9ad3-fcc698ef5ca1', -- Kazi
+    'Tips for Learning Python Loops',
+    'I have been practicing loops in Python. Here are some tips I found helpful...',
+    GETDATE(),
+    GETDATE()
+);
+
+-- Insert a comment by Sainz under the above post
+INSERT INTO CommunityComments (PostId, CreatedByUserId, Content, CreatedAt)
+VALUES (
+    1, -- PostId of the post inserted above
+    'fb186c2e-d202-48ea-aa70-124e77764400', -- Sainz
+    'Thanks for sharing! I found using list comprehensions really helpful.',
+    GETDATE()
+);
+

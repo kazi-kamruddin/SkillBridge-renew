@@ -15,6 +15,8 @@ namespace SkillBridge.Models
 
 
         public double AverageRating { get; set; }
+        public int RatingsReceived { get; set; }
+        public int InteractionsCompleted { get; set; }
     }
 
     public class SkillViewModel
