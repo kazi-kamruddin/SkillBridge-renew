@@ -221,6 +221,7 @@
     <Compile Include="Models\Community.cs" />
     <Compile Include="Models\CompleteProfileViewModel.cs" />
     <Compile Include="Models\ExploreViewModel.cs" />
+    <Compile Include="Models\HomePageViewModel.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\InteractionDetailsViewModel.cs" />
     <Compile Include="Models\InteractionModels.cs" />

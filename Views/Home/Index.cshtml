@@ -1,4 +1,4 @@
-﻿@model List<SkillBridge.Models.SkillCategory>
+﻿@model SkillBridge.Models.HomePageViewModel
 
 @{
     ViewBag.Title = "SkillBridge";
@@ -9,77 +9,94 @@
 }
 
 <main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="title">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
-    </section>
-
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
+    @if (!Model.IsLoggedIn)
+    {
+        <!-- ======================= LOGGED OUT VIEW ======================= -->
+        <section class="row text-center">
+            <h1>Welcome to SkillBridge</h1>
+            <p class="lead">A platform to connect, learn, and share skills with others.</p>
             <p>
-                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-                enables a clean separation of concerns and gives you full control over markup
-                for enjoyable, agile development.
+                <a href="/Account/Login" class="btn btn-primary">Login</a>
+                <a href="/Account/Register" class="btn btn-success">Sign Up</a>
             </p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
         </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-        </section>
-    </div>
 
-    <hr />
+        <hr />
 
-    <h2>Filtered Skills (Name Length ≥ 4)</h2>
-
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th style="width: 20%;">Skill Category</th>
-                <th style="width: 20%;">Skill</th>
-                <th style="width: 60%;">Skill Phases</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var category in Model)
-            {
-                int categoryRowSpan = category.Skills.Sum(s => s.SkillStages.Count);
-                bool firstCategoryRow = true;
-
-                foreach (var skill in category.Skills)
+        
+    }
+    else
+    {
+        <!-- ======================= LOGGED IN VIEW ======================= -->
+        <section>
+            <h2>My Skills</h2>
+            <ul>
+                @foreach (var us in Model.MySkills)
                 {
-                    int skillRowSpan = skill.SkillStages.Count;
-                    bool firstSkillRow = true;
-
-                    foreach (var stage in skill.SkillStages)
-                    {
-                        <tr>
-                            @if (firstCategoryRow)
-                            {
-                                <td rowspan="@categoryRowSpan">@category.Name</td>
-                                firstCategoryRow = false;
-                            }
-
-                            @if (firstSkillRow)
-                            {
-                                <td rowspan="@skillRowSpan">@skill.Name</td>
-                                firstSkillRow = false;
-                            }
-
-                            <td>@stage.Description</td>
-                        </tr>
-                    }
+                    <li>
+                        <strong>@us.Skill.Name</strong> – Known up to stage @us.KnownUpToStage of @us.Skill.SkillStages.Count
+                    </li>
                 }
+            </ul>
+        </section>
+
+        <section>
+            <h2>My Latest Post</h2>
+            @if (Model.MyLatestPost != null)
+            {
+                <div class="card p-2 mb-2">
+                    <h4>
+                        <a href="@Url.Action("PostDetails", "Communities", new { id = Model.MyLatestPost.Id })">
+                            @Model.MyLatestPost.Title
+                        </a>
+                    </h4>
+                    <p>@Model.MyLatestPost.Content</p>
+                    <small>@Model.MyLatestPost.CreatedAt</small>
+                </div>
             }
-        </tbody>
-    </table>
+            else
+            {
+                <p>You haven’t made a post yet.</p>
+            }
+
+            <h3>Someone Else’s Latest Post</h3>
+            @if (Model.OtherLatestPost != null)
+            {
+                <div class="card p-2 mb-2">
+                    <h4>
+                        <a href="@Url.Action("PostDetails", "Communities", new { id = Model.OtherLatestPost.Id })">
+                            @Model.OtherLatestPost.Title
+                        </a>
+                    </h4>
+                    <p>@Model.OtherLatestPost.Content</p>
+                    <small>@Model.OtherLatestPost.CreatedAt</small>
+                </div>
+            }
+            else
+            {
+                <p>No recent posts from others yet.</p>
+            }
+        </section>
+
+
+        <section>
+            <h2>Latest Interaction</h2>
+            @if (Model.LatestInteractionId != null)
+            {
+                <div class="card p-2 mb-2">
+                    <p>With <strong>@Model.LatestInteractionOtherUser</strong></p>
+                    <p>Teaching: @Model.LatestInteractionSkillYouTeach</p>
+                    <p>Learning: @Model.LatestInteractionSkillYouLearn</p>
+                    <p>Status: @Model.LatestInteractionStatus</p>
+                    <a href="@Url.Action("Sessions", "Interactions", new { id = Model.LatestInteractionId })" class="btn btn-outline-primary">
+                        View Stages
+                    </a>
+                </div>
+            }
+            else
+            {
+                <p>No ongoing interactions yet.</p>
+            }
+        </section>
+    }
 </main>

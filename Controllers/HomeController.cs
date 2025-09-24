@@ -1,7 +1,8 @@
-﻿using SkillBridge.Models;
+﻿using Microsoft.AspNet.Identity;
+using SkillBridge.Models;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
-using System.Data.Entity;
 
 namespace SkillBridge.Controllers
 {
@@ -12,29 +13,67 @@ namespace SkillBridge.Controllers
 
 
         ////////////////////////////////////////////////////////////////////////////
+
         public ActionResult Index()
         {
-            var categories = db.SkillCategories
-                .Include("Skills.SkillStages") 
-                .ToList()
-                .Select(c => new SkillCategory
-                {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Skills = c.Skills
-                        .Where(s => s.Name.Length >= 4)
-                        .Select(s => new Skill
-                        {
-                            Id = s.Id,
-                            Name = s.Name,
-                            SkillCategoryId = s.SkillCategoryId,
-                            SkillStages = s.SkillStages.ToList()
-                        }).ToList()
-                })
-                .Where(c => c.Skills.Any())
-                .ToList();
+            var vm = new HomePageViewModel();
 
-            return View(categories);
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = User.Identity.GetUserId();
+                vm.IsLoggedIn = true;
+
+                vm.MySkills = db.UserSkills
+                    .Include("Skill.SkillStages")
+                    .Where(us => us.UserId == userId)
+                    .ToList();
+
+                vm.MyLatestPost = db.CommunityPosts
+                    .Where(p => p.CreatedByUserId == userId)
+                    .OrderByDescending(p => p.CreatedAt)
+                    .FirstOrDefault();
+
+                vm.OtherLatestPost = db.CommunityPosts
+                    .Where(p => p.CreatedByUserId != userId)
+                    .OrderByDescending(p => p.CreatedAt)
+                    .FirstOrDefault();
+
+                var latestInteraction = db.Interactions
+                    .Include(i => i.User1)
+                    .Include(i => i.User2)
+                    .Include(i => i.SkillFromRequester)
+                    .Include(i => i.SkillFromTeacher)
+                    .Where(i => i.User1Id == userId || i.User2Id == userId)
+                    .OrderByDescending(i => i.CreatedAt)
+                    .FirstOrDefault();
+
+                if (latestInteraction != null)
+                {
+                    vm.LatestInteractionId = latestInteraction.Id;
+                    vm.LatestInteractionStatus = latestInteraction.Status;
+
+                    vm.LatestInteractionOtherUser =
+                        latestInteraction.User1Id == userId
+                            ? latestInteraction.User2.UserName
+                            : latestInteraction.User1.UserName;
+
+                    vm.LatestInteractionSkillYouLearn =
+                        latestInteraction.User1Id == userId
+                            ? latestInteraction.SkillFromRequester.Name
+                            : latestInteraction.SkillFromTeacher.Name;
+
+                    vm.LatestInteractionSkillYouTeach =
+                        latestInteraction.User1Id == userId
+                            ? latestInteraction.SkillFromTeacher.Name
+                            : latestInteraction.SkillFromRequester.Name;
+                }
+            }
+            else
+            {
+                vm.IsLoggedIn = false;
+            }
+
+            return View(vm);
         }
 
 
