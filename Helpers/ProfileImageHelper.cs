@@ -6,9 +6,11 @@ namespace SkillBridge.Helpers
     {
         private static readonly string[] DummyImages = new[]
         {
-            "/Content/profilePictures/avatar1.jpg",
+            "/Content/profilePictures/avatar1.png",
             "/Content/profilePictures/avatar2.jpg",
             "/Content/profilePictures/avatar3.png",
+            "/Content/profilePictures/avatar4.png",
+            "/Content/profilePictures/avatar5.png",
         };
 
         private static readonly Random rnd = new Random();

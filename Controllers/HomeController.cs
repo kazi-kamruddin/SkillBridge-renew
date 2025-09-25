@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using SkillBridge.Helpers;
 using SkillBridge.Models;
 using System.Data.Entity;
 using System.Linq;
@@ -18,9 +19,14 @@ namespace SkillBridge.Controllers
         {
             var vm = new HomePageViewModel();
 
+            var id = User.Identity.GetUserId();
+            var user = db.Users.FirstOrDefault(u => u.Id == id);
+            var userInfo = db.UserInformations.FirstOrDefault(ui => ui.UserId == id);
+
             if (User.Identity.IsAuthenticated)
             {
                 var userId = User.Identity.GetUserId();
+                vm.FullName = userInfo?.FullName ?? "";
                 vm.IsLoggedIn = true;
                 vm.MotivationalQuote = HomePageViewModel.GetRandomQuote();
                 vm.MySkills = db.UserSkills
@@ -52,10 +58,15 @@ namespace SkillBridge.Controllers
                     vm.LatestInteractionId = latestInteraction.Id;
                     vm.LatestInteractionStatus = latestInteraction.Status;
 
-                    vm.LatestInteractionOtherUser =
-                        latestInteraction.User1Id == userId
-                            ? latestInteraction.User2.UserName
-                            : latestInteraction.User1.UserName;
+                    var otherUser = latestInteraction.User1Id == userId
+                        ? latestInteraction.User2
+                        : latestInteraction.User1;
+
+                    var otherUserInfo = db.UserInformations.FirstOrDefault(ui => ui.UserId == otherUser.Id);
+
+                    vm.LatestInteractionOtherUser = otherUser.UserName;
+                    vm.LatestInteractionOtherUserFullName = otherUserInfo?.FullName ?? otherUser.UserName;
+                    vm.LatestInteractionOtherUserProfileImage = ProfileImageHelper.GetRandomProfileImage();
 
                     vm.LatestInteractionSkillYouLearn =
                         latestInteraction.User1Id == userId

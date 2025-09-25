@@ -33,7 +33,8 @@
                         <h5 class="mb-1 text-dark">@post.Title</h5>
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">
-                                by <strong>@post.CreatedByUserName</strong> · @post.CreatedAt.ToString("MMM dd, yyyy")
+                                by <strong>@post.CreatedByFullName</strong>
+                                · @post.CreatedAt.ToString("MMM dd, yyyy")
                             </small>
                             <span class="badge bg-light text-dark">View</span>
                         </div>

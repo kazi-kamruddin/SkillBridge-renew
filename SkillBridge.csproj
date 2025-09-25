@@ -251,9 +251,11 @@
     <Content Include="Content\DP\muthaki.jpeg" />
     <Content Include="Content\DP\rakibul.jpg" />
     <Content Include="Content\DP\sakib.jpg" />
-    <Content Include="Content\profilePictures\avatar1.jpg" />
+    <Content Include="Content\profilePictures\avatar1.png" />
     <Content Include="Content\profilePictures\avatar2.jpg" />
     <Content Include="Content\profilePictures\avatar3.png" />
+    <Content Include="Content\profilePictures\avatar4.png" />
+    <Content Include="Content\profilePictures\avatar5.png" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />

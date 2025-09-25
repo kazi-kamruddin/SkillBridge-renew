@@ -74,7 +74,7 @@ namespace SkillBridge.Models
     {
         public int PostId { get; set; }
         public string Title { get; set; }
-        public string CreatedByUserName { get; set; }
+        public string CreatedByFullName { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 
@@ -98,7 +98,7 @@ namespace SkillBridge.Models
     {
         public int CommentId { get; set; }
         public string Content { get; set; }
-        public string CreatedByUserName { get; set; }
+        public string CreatedByFullName { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 

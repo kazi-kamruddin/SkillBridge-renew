@@ -81,15 +81,19 @@ namespace SkillBridge.Controllers
             var posts = db.CommunityPosts
                 .Where(p => p.CommunityId == id)
                 .OrderByDescending(p => p.CreatedAt)
-                .ToList() 
+                .ToList()
                 .Select(p => new CommunityPostListItemViewModel
                 {
                     PostId = p.Id,
                     Title = p.Title,
-                    CreatedByUserName = db.Users.Find(p.CreatedByUserId)?.UserName ?? "Unknown",
+                    CreatedByFullName = db.UserInformations
+                        .Where(ui => ui.UserId == p.CreatedByUserId)
+                        .Select(ui => ui.FullName)
+                        .FirstOrDefault() ?? "Unknown",
                     CreatedAt = p.CreatedAt
                 })
                 .ToList();
+
 
 
             var model = new CommunityLandingViewModel
@@ -168,22 +172,29 @@ namespace SkillBridge.Controllers
                 CommunityId = post.CommunityId,
                 Title = post.Title,
                 Content = post.Content,
-                CreatedByUserName = db.Users.Find(post.CreatedByUserId)?.UserName ?? "Unknown",
-                CreatedAt = post.CreatedAt,
-                IsMember = isMember,
-                Comments = post.Comments.OrderBy(c => c.CreatedAt)
-                    .Select(c => new CommunityCommentViewModel
-                    {
-                        CommentId = c.Id,
-                        Content = c.Content,
-                        CreatedByUserName = db.Users.Find(c.CreatedByUserId)?.UserName ?? "Unknown",
-                        CreatedAt = c.CreatedAt
-                    }).ToList(),
+                CreatedByUserName = db.UserInformations
+                .Where(ui => ui.UserId == post.CreatedByUserId)
+                .Select(ui => ui.FullName)
+                .FirstOrDefault() ?? "Unknown",
+                        CreatedAt = post.CreatedAt,
+                        IsMember = isMember,
+                        Comments = post.Comments.OrderBy(c => c.CreatedAt)
+                .Select(c => new CommunityCommentViewModel
+                {
+                    CommentId = c.Id,
+                    Content = c.Content,
+                    CreatedByFullName = db.UserInformations
+                        .Where(ui => ui.UserId == c.CreatedByUserId)
+                        .Select(ui => ui.FullName)
+                        .FirstOrDefault() ?? "Unknown",
+                    CreatedAt = c.CreatedAt
+                }).ToList(),
                 NewComment = new CommunityCommentCreateModel
                 {
-                    PostId = post.Id   
+                    PostId = post.Id
                 }
             };
+
 
             return View(model);
         }

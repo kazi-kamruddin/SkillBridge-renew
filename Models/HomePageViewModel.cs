@@ -5,6 +5,7 @@ namespace SkillBridge.Models
 {
     public class HomePageViewModel
     {
+        public string FullName { get; set; }
         public List<SkillCategory> SkillCategories { get; set; }
 
         public List<UserSkill> MySkills { get; set; }
@@ -22,6 +23,8 @@ namespace SkillBridge.Models
         public string LatestInteractionSkillYouTeach { get; set; }
         public string LatestInteractionSkillYouLearn { get; set; }
         public string LatestInteractionStatus { get; set; }
+        public string LatestInteractionOtherUserFullName { get; set; } 
+        public string LatestInteractionOtherUserProfileImage { get; set; }
 
         public bool IsLoggedIn { get; set; }
 

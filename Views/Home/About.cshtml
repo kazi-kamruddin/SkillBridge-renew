@@ -58,18 +58,19 @@
         <h2 class="about-us-section-dev-title">Special Thanks To</h2>
 
         <div class="about-us-gallery">
-            <div class="about-us-card about-us-card-visible">
-                <img src="~/Content/DP/muthaki.jpeg" alt="Ms. Tahsina Muthaki" />
-                <div class="about-us-visible-text">
-                    <h3>Ms. Tahsina Muthaki</h3>
-                    <p>Lecturer</p>
-                </div>
-            </div>
 
             <div class="about-us-card about-us-card-visible">
                 <img src="~/Content/DP/broti.jpeg" alt="Second Mam" />
                 <div class="about-us-visible-text">
                     <h3>Ms. Tanjila Broti</h3>
+                    <p>Lecturer</p>
+                </div>
+            </div>
+
+            <div class="about-us-card about-us-card-visible">
+                <img src="~/Content/DP/muthaki.jpeg" alt="Ms. Tahsina Muthaki" />
+                <div class="about-us-visible-text">
+                    <h3>Ms. Tahsina Muthaki</h3>
                     <p>Lecturer</p>
                 </div>
             </div>
@@ -147,6 +148,13 @@
         display: flex;
         flex-direction: column;
     }
+
+        .about-us-card-visible img {
+            width: 100%;
+            height: 266.93px; /* same as .about-us-card height */
+            object-fit: cover; /* ensures proper cropping without distortion */
+        }
+
 
     .about-us-visible-text {
         background: #007BFF;
