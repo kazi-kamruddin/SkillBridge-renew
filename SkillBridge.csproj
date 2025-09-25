@@ -246,6 +246,11 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\DP\broti.jpeg" />
+    <Content Include="Content\DP\kazi.jpg" />
+    <Content Include="Content\DP\muthaki.jpeg" />
+    <Content Include="Content\DP\rakibul.jpg" />
+    <Content Include="Content\DP\sakib.jpg" />
     <Content Include="Content\profilePictures\avatar1.jpg" />
     <Content Include="Content\profilePictures\avatar2.jpg" />
     <Content Include="Content\profilePictures\avatar3.png" />

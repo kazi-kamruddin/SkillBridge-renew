@@ -1,5 +1,4 @@
-﻿layout
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -213,8 +212,9 @@
         /* Main Content Area */
         .main-content {
             flex: 1;
-            padding: 2rem 0;
+            padding: 150px 0 2rem; /* top | left/right | bottom */
         }
+
 
         /* Footer Styles */
         footer {
@@ -396,7 +396,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm fixed-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="@Url.Action("Index", "Home")">
                 <i class="fas fa-bridge  me-2"></i>SkillBridge
@@ -430,10 +430,13 @@
                     }
 
                     <li class="nav-item">
-                        <button id="themeToggle" class="btn theme-toggle" title="Toggle Dark/Light Mode">
-                            <i class="fas fa-moon"></i>
-                        </button>
+                        <a class="nav-link p-0">
+                            <button id="themeToggle" class="btn theme-toggle" title="Toggle Dark/Light Mode">
+                                <i class="fas fa-moon"></i>
+                            </button>
+                        </a>
                     </li>
+
                 </ul>
             </div>
         </div>
