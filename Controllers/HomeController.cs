@@ -22,7 +22,7 @@ namespace SkillBridge.Controllers
             {
                 var userId = User.Identity.GetUserId();
                 vm.IsLoggedIn = true;
-
+                vm.MotivationalQuote = HomePageViewModel.GetRandomQuote();
                 vm.MySkills = db.UserSkills
                     .Include("Skill.SkillStages")
                     .Where(us => us.UserId == userId)
